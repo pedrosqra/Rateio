@@ -1,6 +1,6 @@
-# App de Divisão de Gastos
+# App de Divisão de Gastos - Rateio
 
-O app é um aplicativo para ajudar amigos, colegas de quarto e pessoas em geral a controlar a divisão de gastos de forma simples e organizada. Com o DiviSplit, você pode criar grupos, adicionar despesas compartilhadas e acompanhar quem deve o quê de maneira eficiente.
+O app é um aplicativo para ajudar amigos, colegas de quarto e pessoas em geral a controlar a divisão de gastos de forma simples e organizada. Com o Rateio, você pode criar grupos, adicionar despesas compartilhadas e acompanhar quem deve o quê de maneira eficiente.
 
 ## Funcionalidades Principais
 
@@ -18,7 +18,7 @@ O app é um aplicativo para ajudar amigos, colegas de quarto e pessoas em geral 
 
 ### Pré-requisitos
 
-Certifique-se de ter o Node.js e o npm instalados em sua máquina.
+Certifique-se de ter o Node.js e o Yarn instalados em sua máquina.
 
 ### Instalação
 
@@ -29,11 +29,9 @@ git clone https://github.com/SEU_USUARIO/seu-projeto.git
 cd seu-projeto
 ```
 
-2. Instale as dependências do frontend
-   cd frontend
-   npm install
+2. Instale as dependências 
+   yarn install
 3. Rodando o app
-   Acesse o diretório do frontend e roda:
 ```bash
 expo start
 ```
