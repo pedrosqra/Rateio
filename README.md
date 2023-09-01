@@ -29,9 +29,11 @@ git clone https://github.com/SEU_USUARIO/seu-projeto.git
 cd seu-projeto
 ```
 
-2. Instale as dependências 
+2. Instale as dependências
+```bash
    yarn install
-3. Rodando o app
+```
+4. Rodando o app
 ```bash
 expo start
 ```
