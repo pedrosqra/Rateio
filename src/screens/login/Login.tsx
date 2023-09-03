@@ -12,10 +12,9 @@ const Login = () => {
         setLoading(true)
         try {
             const response = await login(email, password);
-            console.log('Check your email\n\n' + response)
-        } catch (error: any) {
-            console.log(error)
-            alert("Ocorreu um erro ao fazer login. Crie sua conta primeiro.")
+            if (!response) {
+                alert("Ocorreu um erro ao fazer login. Verifique email e senha.")
+            }
         } finally {
             setLoading(false)
         }
@@ -25,10 +24,12 @@ const Login = () => {
         setLoading(true)
         try {
             const response = await signup(email, password, null)
-            console.log('Check your email\n\n' + response)
-        } catch (error: any) {
-            console.log(error)
-            alert("Conta não foi criada.")
+            if (response) {
+                alert("Conta criada com sucesso. Verifique  seu email.")
+
+            } else {
+                alert("Ocorreu um erro ao criar a conta. Verifique email e senha.")
+            }
         } finally {
             setLoading(false)
         }

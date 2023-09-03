@@ -12,32 +12,11 @@ import {
     where
 } from 'firebase/firestore';
 
-// Users collection reference
 const usersCollection = collection(db, 'users');
 
-// User document reference
 function userDocument(userId) {
     return firestoreDoc(usersCollection, userId);
 }
-
-// CRUD operations for users
-const createUser = async (userData) => {
-    try {
-        const userIdExists = await checkUserIdExists(userData.userId);
-        const pixExists = await checkPixExists(userData.pix);
-        const emailExists = await checkEmailExists(userData.email);
-
-        if (userIdExists || pixExists || emailExists) {
-            console.error('User with duplicate values already exists');
-            return;
-        }
-
-        await firestoreSetDoc(userDocument(userData.userId), userData);
-        console.log('User created successfully');
-    } catch (error) {
-        console.error('Error creating user:', error);
-    }
-};
 
 const updateUser = async (userId, updatedFields) => {
     try {
@@ -72,13 +51,11 @@ const readUser = async (userId) => {
     }
 };
 
-// Check if a user ID already exists
 const checkUserIdExists = async (userId) => {
     const userSnapshot = await firestoreGetDoc(userDocument(userId));
     return userSnapshot.exists();
 };
 
-// Check if a pix value already exists
 const checkPixExists = async (pix) => {
     try {
         const usersRef = collection(db, 'users');
@@ -92,7 +69,6 @@ const checkPixExists = async (pix) => {
     }
 };
 
-// Check if an email value already exists
 const checkEmailExists = async (email) => {
     try {
         const usersRef = collection(db, 'users');
@@ -110,21 +86,19 @@ const generateUserId = () => {
     return firestoreDoc(usersCollection).id;
 };
 
-// Login and Sign-up functions
 const login = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
         const user = userCredential.user;
 
-        const userData = await readUser(user.uid);
+        // const userData = await readUser(user.uid);
+        // if (userData) {
+        // }
 
-        if (userData) {
-        }
-
-        return user;
+        return true;
     } catch (error) {
         console.log(error);
-        return null;
+        return false;
     }
 };
 
@@ -141,17 +115,17 @@ const signup = async (email, password, userData) => {
         };
 
         await firestoreSetDoc(userDocument(user.uid), userDocumentData);
+        //await sendEmailVerification(user); // Ainda estudando como fazer isso da melhor forma
 
-        return user;
+        return true;
     } catch (error) {
-        console.log(error);
-        return null;
+        console.log(error)
+        return false;
     }
 };
 
 
 export {
-    createUser,
     updateUser,
     deleteUser,
     readUser,
