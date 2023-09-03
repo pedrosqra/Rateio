@@ -1,14 +1,15 @@
-import { db } from '../firebase/firebase';
+import {db, firebaseAuth} from '../firebase/firebase';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import {
     collection,
-    query,
-    where,
-    getDocs,
+    deleteDoc as firestoreDeleteDoc,
     doc as firestoreDoc,
+    getDoc as firestoreGetDoc,
+    getDocs,
+    query,
     setDoc as firestoreSetDoc,
     updateDoc as firestoreUpdateDoc,
-    deleteDoc as firestoreDeleteDoc,
-    getDoc as firestoreGetDoc
+    where
 } from 'firebase/firestore';
 
 // Users collection reference
@@ -18,6 +19,7 @@ const usersCollection = collection(db, 'users');
 function userDocument(userId) {
     return firestoreDoc(usersCollection, userId);
 }
+
 // CRUD operations for users
 const createUser = async (userData) => {
     try {
@@ -108,10 +110,51 @@ const generateUserId = () => {
     return firestoreDoc(usersCollection).id;
 };
 
+// Login and Sign-up functions
+const login = async (email, password) => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+        const user = userCredential.user;
+
+        const userData = await readUser(user.uid);
+
+        if (userData) {
+        }
+
+        return user;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+
+const signup = async (email, password, userData) => {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+        const user = userCredential.user;
+
+        const userDocumentData = {
+            userId: user.uid,
+            email: user.email,
+            ...userData
+        };
+
+        await firestoreSetDoc(userDocument(user.uid), userDocumentData);
+
+        return user;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+
 export {
     createUser,
     updateUser,
     deleteUser,
     readUser,
-    generateUserId
+    generateUserId,
+    login, signup
 };
