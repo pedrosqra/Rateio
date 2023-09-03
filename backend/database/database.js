@@ -1,9 +1,10 @@
-import { db } from '../firebase/firebase';
+import {db} from '../firebase/firebase';
 import {
     collection,
     doc as firestoreDoc,
-    setDoc as firestoreSetDoc,
-    getDoc as firestoreGetDoc
+    getDoc as firestoreGetDoc,
+    getDocs,
+    setDoc as firestoreSetDoc
 } from 'firebase/firestore';
 
 // Groups collection reference
@@ -41,7 +42,13 @@ const generateGroupId = () => {
     return firestoreDoc(groupsCollection).id;
 };
 
+const getGroups = async () => {
+    const snapshot = await getDocs(groupsCollection);
+    return snapshot.docs.map(doc => doc.data());
+}
+
 export {
     createGroup,
-    generateGroupId
+    generateGroupId,
+    getGroups
 };
