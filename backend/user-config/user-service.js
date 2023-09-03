@@ -1,14 +1,14 @@
-import { db } from '../firebase/firebase';
+import {db} from '../firebase/firebase';
 import {
     collection,
-    query,
-    where,
-    getDocs,
+    deleteDoc as firestoreDeleteDoc,
     doc as firestoreDoc,
+    getDoc as firestoreGetDoc,
+    getDocs,
+    query,
     setDoc as firestoreSetDoc,
     updateDoc as firestoreUpdateDoc,
-    deleteDoc as firestoreDeleteDoc,
-    getDoc as firestoreGetDoc
+    where
 } from 'firebase/firestore';
 
 // Users collection reference
@@ -18,6 +18,7 @@ const usersCollection = collection(db, 'users');
 function userDocument(userId) {
     return firestoreDoc(usersCollection, userId);
 }
+
 // CRUD operations for users
 const createUser = async (userData) => {
     try {
@@ -108,10 +109,15 @@ const generateUserId = () => {
     return firestoreDoc(usersCollection).id;
 };
 
+const getUsers = async () => {
+    const snapshot = await getDocs(usersCollection);
+    return snapshot.docs.map(doc => doc.data());
+}
+
 export {
     createUser,
     updateUser,
     deleteUser,
     readUser,
-    generateUserId
+    generateUserId, getUsers
 };
