@@ -1,14 +1,15 @@
-import {db} from '../firebase/firebase';
+import { db } from '../firebase/firebase';
 import {
     collection,
-    deleteDoc as firestoreDeleteDoc
-    doc as firestoreDoc,
-    getDoc as firestoreGetDoc,
+    query,
+    where,
     getDocs,
+    doc as firestoreDoc,
     setDoc as firestoreSetDoc,
-    updateDoc as firestoreUpdateDoc
+    updateDoc as firestoreUpdateDoc,
+    deleteDoc as firestoreDeleteDoc,
+    getDoc as firestoreGetDoc
 } from 'firebase/firestore';
-
 // Groups collection reference
 const groupsCollection = collection(db, 'groups');
 
@@ -36,12 +37,13 @@ const createGroup = async (groupData) => {
 
 const updateGroup = async (groupId, updatedFields) => {
     try {
-        await firestoreUpdateDoc(groupDocument(groupId), updatedfields);
+        await firestoreUpdateDoc(groupDocument(groupId), updatedFields); // Corrected
         console.log("Group updated successfully");
     } catch (error) {
         console.error('Error updating group:', error);
     }
 };
+
 
 const deleteGroup = async (groupId) => {
     try {
