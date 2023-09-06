@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Text, View, Button, StyleSheet } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import styles from './HomeScreenStyles'
@@ -8,7 +9,7 @@ type RootStackParamList = {
   GroupScreen: undefined;
 };
 
-type HomeScreenProps = {
+  type HomeScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Home'>;
 };
 
