@@ -1,3 +1,5 @@
+import {db, firebaseAuth} from '../firebase/firebase';
+import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import {db} from '../firebase/firebase';
 import {
     collection,
@@ -11,10 +13,8 @@ import {
     where
 } from 'firebase/firestore';
 
-// Users collection reference
 const usersCollection = collection(db, 'users');
 
-// User document reference
 function userDocument(userId) {
     return firestoreDoc(usersCollection, userId);
 }
@@ -71,13 +71,11 @@ const readUser = async (userId) => {
     }
 };
 
-// Check if a user ID already exists
 const checkUserIdExists = async (userId) => {
     const userSnapshot = await firestoreGetDoc(userDocument(userId));
     return userSnapshot.exists();
 };
 
-// Check if a pix value already exists
 const checkPixExists = async (pix) => {
     try {
         const usersRef = collection(db, 'users');
@@ -91,7 +89,6 @@ const checkPixExists = async (pix) => {
     }
 };
 
-// Check if an email value already exists
 const checkEmailExists = async (email) => {
     try {
         const usersRef = collection(db, 'users');
@@ -109,15 +106,56 @@ const generateUserId = () => {
     return firestoreDoc(usersCollection).id;
 };
 
+const login = async (email, password) => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+        const user = userCredential.user;
+
+        // const userData = await readUser(user.uid);
+        // if (userData) {
+        // }
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+};
+
+
+const signup = async (email, password, userData) => {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+        const user = userCredential.user;
+
+        const userDocumentData = {
+            userId: user.uid,
+            email: user.email,
+            ...userData
+        };
+
+        await firestoreSetDoc(userDocument(user.uid), userDocumentData);
+        //await sendEmailVerification(user); // Ainda estudando como fazer isso da melhor forma
+
+        return true;
+    } catch (error) {
+        console.log(error)
+        return false;
+    }
+};
+
 const getUsers = async () => {
     const snapshot = await getDocs(usersCollection);
     return snapshot.docs.map(doc => doc.data());
 }
 
 export {
-    createUser,
     updateUser,
     deleteUser,
     readUser,
-    generateUserId, getUsers
+    generateUserId,
+    login, 
+    signup,
+    generateUserId, 
+    getUsers
 };
