@@ -1,5 +1,6 @@
 import {db, firebaseAuth} from '../firebase/firebase';
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
+import {db} from '../firebase/firebase';
 import {
     collection,
     deleteDoc as firestoreDeleteDoc,
@@ -17,6 +18,25 @@ const usersCollection = collection(db, 'users');
 function userDocument(userId) {
     return firestoreDoc(usersCollection, userId);
 }
+
+// CRUD operations for users
+const createUser = async (userData) => {
+    try {
+        const userIdExists = await checkUserIdExists(userData.userId);
+        const pixExists = await checkPixExists(userData.pix);
+        const emailExists = await checkEmailExists(userData.email);
+
+        if (userIdExists || pixExists || emailExists) {
+            console.error('User with duplicate values already exists');
+            return;
+        }
+
+        await firestoreSetDoc(userDocument(userData.userId), userData);
+        console.log('User created successfully');
+    } catch (error) {
+        console.error('Error creating user:', error);
+    }
+};
 
 const updateUser = async (userId, updatedFields) => {
     try {
@@ -124,11 +144,18 @@ const signup = async (email, password, userData) => {
     }
 };
 
+const getUsers = async () => {
+    const snapshot = await getDocs(usersCollection);
+    return snapshot.docs.map(doc => doc.data());
+}
 
 export {
     updateUser,
     deleteUser,
     readUser,
     generateUserId,
-    login, signup
+    login, 
+    signup,
+    generateUserId, 
+    getUsers
 };

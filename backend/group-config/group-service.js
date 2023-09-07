@@ -1,10 +1,12 @@
 import {db} from '../firebase/firebase';
 import {
     collection,
+    deleteDoc as firestoreDeleteDoc
     doc as firestoreDoc,
     getDoc as firestoreGetDoc,
     getDocs,
-    setDoc as firestoreSetDoc
+    setDoc as firestoreSetDoc,
+    updateDoc as firestoreUpdateDoc
 } from 'firebase/firestore';
 
 // Groups collection reference
@@ -32,6 +34,39 @@ const createGroup = async (groupData) => {
     }
 };
 
+const updateGroup = async (groupId, updatedFields) => {
+    try {
+        await firestoreUpdateDoc(groupDocument(groupId), updatedfields);
+        console.log("Group updated successfully");
+    } catch (error) {
+        console.error('Error updating group:', error);
+    }
+};
+
+const deleteGroup = async (groupId) => {
+    try {
+        await firestoreDeleteDoc(groupDocument(groupId));
+        console.log('Group deleted successfully');
+    } catch (error) {
+        console.error('Error deleting group:', error);
+    }
+};
+
+const readGroup = async (groupId) => {
+    try {
+        const groupSnapshot = await firestoreGetDoc(groupDocument(groupId));
+        if (groupSnapshot.exists()) {
+            return groupSnapshot.data();
+        } else {
+            console.log('Group not found');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error reading group:', error);
+        return null;
+    }
+};
+
 // Check if a group ID already exists
 const checkGroupIdExists = async (groupId) => {
     const groupSnapshot = await firestoreGetDoc(groupDocument(groupId));
@@ -49,6 +84,9 @@ const getGroups = async () => {
 
 export {
     createGroup,
+    updateGroup,
+    deleteGroup,
+    readGroup,
     generateGroupId,
     getGroups
 };
