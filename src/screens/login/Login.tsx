@@ -1,9 +1,17 @@
+import React, { useEffect, useState } from 'react'
 import {ActivityIndicator, Button, Text, TextInput, View} from 'react-native';
-import {useState} from "react";
 import {login, signup} from '../../../backend/user-config/user-service'
 import styles from "../login/LoginStyles";
+import { onAuthStateChanged } from 'firebase/auth';
+import { firebaseAuth } from '../../../backend/firebase/firebase';
+import { useUserStore } from '../../store/user';
+import { useNavigation } from '@react-navigation/native';
 
 const Login = () => {
+    const { setPersonalData } = useUserStore()
+
+    const navigation = useNavigation()
+
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -35,10 +43,18 @@ const Login = () => {
         }
     }
 
+    useEffect(() => {
+        onAuthStateChanged(firebaseAuth, (user) => {
+            if (user) {
+                setPersonalData(user)
+                navigation.navigate('Home')
+            }
+        })
+    }, [])
+
     return (
         <View style={styles.container}>
             <Text>Login</Text>
-            {}
             <TextInput value={email} style={styles.input} placeholder="Email" autoCapitalize="none"
                        onChangeText={(text) => setEmail(text)}></TextInput>
             <TextInput value={password} secureTextEntry={true} style={styles.input} placeholder="password"
