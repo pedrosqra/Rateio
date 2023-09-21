@@ -12,6 +12,7 @@ import {
     updateDoc as firestoreUpdateDoc,
     where
 } from 'firebase/firestore';
+import {UserDTO} from '../dto/userDTO'
 
 const usersCollection = collection(db, 'users');
 
@@ -40,7 +41,14 @@ const createUser = async (userData) => {
 
 const updateUser = async (userId, updatedFields) => {
     try {
-        await firestoreUpdateDoc(userDocument(userId), updatedFields);
+        const userIdExists = await checkUserIdExists(userId);
+
+        if (!userIdExists) {
+            console.error('User does not exists');
+            return;
+        }
+        
+        await firestoreUpdateDoc(userDocument(userId), new UserDTO(updatedFields));
         console.log('User updated successfully');
     } catch (error) {
         console.error('Error updating user:', error);
