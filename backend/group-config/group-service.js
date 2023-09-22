@@ -1,7 +1,7 @@
 import {db} from '../firebase/firebase';
 import {
     collection,
-    deleteDoc as firestoreDeleteDoc
+    deleteDoc as firestoreDeleteDoc,
     doc as firestoreDoc,
     getDoc as firestoreGetDoc,
     getDocs,
