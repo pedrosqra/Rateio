@@ -1,35 +1,54 @@
-import React from 'react';
-import {Button, Text, View} from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import {View, Button} from 'react-native';
+import * as Notifications from "expo-notifications"
+
+import { useUserStore } from '../../store/user';
+
+import { registerForPushNotificationsAsync, schedulePushNotification } from '../../resources/notifications'
+
 import styles from './HomeScreenStyles';
-import {RouteProp} from "@react-navigation/native";
-import {firebaseAuth} from "../../../backend/firebase/firebase";
-import {User} from "../../interfaces/user";
-import {StackNavigationProp} from "@react-navigation/stack";
 
-type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+});
 
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+const HomeScreen = () => {
+    const { email } = useUserStore()
 
-type RootStackParamList = {
-    Home: { user: User };
-};
+    const [expoPushToken, setExpoPushToken] = useState<any>('');
+    const [notification, setNotification] = useState<any>();
+    const notificationListener = useRef<any>();
+    const responseListener = useRef<any>();
 
-interface RouterProps {
-    route: HomeScreenRouteProp;
-    navigation: HomeScreenNavigationProp;
-}
+    useEffect(() => {
+        registerForPushNotificationsAsync()
+          .then(token => setExpoPushToken(token))
+          .catch(() => {})
 
-const HomeScreen = ({route, navigation}: RouterProps) => {
-    const user = route.params.user;
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+          setNotification(notification);
+        });
+
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+          console.log(response);
+        });
+
+        return () => {
+          Notifications.removeNotificationSubscription(notificationListener.current);
+          Notifications.removeNotificationSubscription(responseListener.current);
+        };
+      }, []);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Rateio</Text>
-            <View style={styles.card}>
-                <Text style={styles.cardTitle}>Bem vindo ao app Rateio {user.email}!</Text>
-                <Text style={styles.cardText}>Divida seus gastos de forma inteligente.</Text>
-                <Button title={"Sair"} onPress={() => firebaseAuth.signOut()}>Sair</Button>
-            </View>
+            <Button
+                title="Press to schedule a notification"
+                onPress={() => schedulePushNotification()}
+            />
         </View>
     );
 };

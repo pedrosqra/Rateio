@@ -1,6 +1,5 @@
 import {db, firebaseAuth} from '../firebase/firebase';
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
-import {db} from '../firebase/firebase';
 import {
     collection,
     deleteDoc as firestoreDeleteDoc,
@@ -154,8 +153,7 @@ export {
     deleteUser,
     readUser,
     generateUserId,
-    login, 
+    login,
     signup,
-    generateUserId, 
     getUsers
 };
