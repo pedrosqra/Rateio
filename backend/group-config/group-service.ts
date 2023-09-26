@@ -80,8 +80,10 @@ const createGroupWithSharedDebt = async (
         }
 
         console.log("Group created with shared debt successfully");
+        return newGroupId;
     } catch (error) {
         console.error("Error creating group with shared debt:", error);
+        return null;
     }
 };
 
@@ -97,8 +99,8 @@ const addDebt = async (debtData: any) => {
 
 const calculateDebtDistribution = (adminId: string, members: string[], sharedDebtAmount: number, divisionMethod: string) => {
     if (divisionMethod === "equal") {
-        const numberOfMembers = members.length + 1;
-        const perMemberDebt = sharedDebtAmount / numberOfMembers;
+        const numberOfMembers = members.length;
+        const perMemberDebt = numberOfMembers > 0 ? sharedDebtAmount / numberOfMembers : sharedDebtAmount;
         const distribution: Record<string, number> = {};
         members.forEach((memberId) => {
             distribution[memberId] = perMemberDebt;
@@ -152,7 +154,6 @@ const deleteGroup = async (groupId: string) => {
     }
 };
 
-// Function to delete a user from a group
 const deleteUserFromGroup = async (groupId: string, userId: string) => {
     try {
         // Remove the user from the group's members array
@@ -169,24 +170,21 @@ const deleteUserFromGroup = async (groupId: string, userId: string) => {
                     // Update the group document with the modified members array
                     await firestoreUpdateDoc(groupDocRef, {members: groupData.members});
 
-                    // Calculate debt distribution based on divisionMethod
+                    // Calculate the new debt amount per member based on the updated group size and total debt
                     const sharedDebtAmount = groupData.debtAmount; // Use the group's shared debt
                     const divisionMethod = groupData.divisionMethod; // Use the group's division method
 
                     const remainingMembers = groupData.members;
-                    const debtDistribution = calculateDebtDistribution(
-                        userId,
-                        remainingMembers,
-                        sharedDebtAmount,
-                        divisionMethod
-                    );
+                    const newDebtAmountPerMember = sharedDebtAmount / remainingMembers.length;
 
                     // Update existing debts for the remaining members with the new amounts
-                    for (const memberId in debtDistribution) {
-                        const amount = debtDistribution[memberId];
+                    for (const memberId of remainingMembers) {
                         const description = "Shared Debt Distribution";
                         const debtDocRef = debtDocument(groupId, memberId);
-                        await firestoreUpdateDoc(debtDocRef, {amount, description});
+                        await firestoreUpdateDoc(debtDocRef, {
+                            amount: newDebtAmountPerMember,
+                            description,
+                        });
                     }
 
                     // Delete the user's debts within the group
@@ -224,7 +222,7 @@ const addUserToGroup = async (
                 groupData.members.push(userId);
                 // Update the group document with the modified members array
                 await firestoreUpdateDoc(groupDocRef, {members: groupData.members});
-
+                console.log(sharedDebtAmount)
                 // Calculate debt distribution based on divisionMethod
                 const debtDistribution = calculateDebtDistribution(
                     userId,
@@ -238,7 +236,15 @@ const addUserToGroup = async (
                     const amount = debtDistribution[memberId];
                     const description = "Shared Debt Distribution";
                     const debtDocRef = debtDocument(groupId, memberId);
-                    await firestoreUpdateDoc(debtDocRef, {amount, description});
+
+                    // Check if the debt document exists before updating it
+                    const debtSnapshot = await firestoreGetDoc(debtDocRef);
+                    if (debtSnapshot.exists()) {
+                        await firestoreUpdateDoc(debtDocRef, {amount, description});
+                    } else {
+                        // Create the debt document if it doesn't exist
+                        await firestoreSetDoc(debtDocRef, {amount, description});
+                    }
                 }
 
                 console.log('User added to the group, and debts recalculated successfully');

@@ -8,7 +8,6 @@ import {
     getDocs,
     query,
     setDoc as firestoreSetDoc,
-    updateDoc as firestoreUpdateDoc,
     where
 } from 'firebase/firestore';
 
@@ -17,34 +16,6 @@ const usersCollection = collection(db, 'users');
 function userDocument(userId) {
     return firestoreDoc(usersCollection, userId);
 }
-
-// CRUD operations for users
-const createUser = async (userData) => {
-    try {
-        const userIdExists = await checkUserIdExists(userData.userId);
-        const pixExists = await checkPixExists(userData.pix);
-        const emailExists = await checkEmailExists(userData.email);
-
-        if (userIdExists || pixExists || emailExists) {
-            console.error('User with duplicate values already exists');
-            return;
-        }
-
-        await firestoreSetDoc(userDocument(userData.userId), userData);
-        console.log('User created successfully');
-    } catch (error) {
-        console.error('Error creating user:', error);
-    }
-};
-
-const updateUser = async (userId, updatedFields) => {
-    try {
-        await firestoreUpdateDoc(userDocument(userId), updatedFields);
-        console.log('User updated successfully');
-    } catch (error) {
-        console.error('Error updating user:', error);
-    }
-};
 
 const deleteUser = async (userId) => {
     try {
@@ -149,7 +120,6 @@ const getUsers = async () => {
 }
 
 export {
-    updateUser,
     deleteUser,
     readUser,
     generateUserId,

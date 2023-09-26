@@ -1,23 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {View, Button} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {Button, View} from 'react-native';
 import * as Notifications from "expo-notifications"
+import {useUserStore} from '../../store/user';
 
-import { useUserStore } from '../../store/user';
-
-import { registerForPushNotificationsAsync, schedulePushNotification } from '../../resources/notifications'
+import {registerForPushNotificationsAsync, schedulePushNotification} from '../../resources/notifications'
 
 import styles from './HomeScreenStyles';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
     }),
 });
 
 const HomeScreen = () => {
-    const { email } = useUserStore()
+    const {email} = useUserStore()
 
     const [expoPushToken, setExpoPushToken] = useState<any>('');
     const [notification, setNotification] = useState<any>();
@@ -25,23 +24,25 @@ const HomeScreen = () => {
     const responseListener = useRef<any>();
 
     useEffect(() => {
+        //main().then(r => console.log("Main called"));
         registerForPushNotificationsAsync()
-          .then(token => setExpoPushToken(token))
-          .catch(() => {})
+            .then(token => setExpoPushToken(token))
+            .catch(() => {
+            })
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-          setNotification(notification);
+            setNotification(notification);
         });
 
         responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-          console.log(response);
+            console.log(response);
         });
 
         return () => {
-          Notifications.removeNotificationSubscription(notificationListener.current);
-          Notifications.removeNotificationSubscription(responseListener.current);
+            Notifications.removeNotificationSubscription(notificationListener.current);
+            Notifications.removeNotificationSubscription(responseListener.current);
         };
-      }, []);
+    }, []);
 
     return (
         <View style={styles.container}>
