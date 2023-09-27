@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#3498db', // Define a cor de fundo azul
+    backgroundColor: '#373B3F', // Define a cor de fundo azul
   },
   card: {
     backgroundColor: 'white',

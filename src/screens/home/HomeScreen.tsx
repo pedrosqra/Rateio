@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Text, View, Button, StyleSheet } from 'react-native';
+import { Text, View, Button, StyleSheet, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import styles from './HomeScreenStyles'
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 type RootStackParamList = {
   Home: undefined;
@@ -20,11 +21,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Rateio</Text>
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Bem vindo ao app Rateio!</Text>
-        <Text style={styles.cardText}>Divida seus gastos de forma inteligente.</Text>
-        <Button title="Ir para grupo" onPress={navigateToGroup} />
+      <View style={styles.header}>
+        <View style={styles.profileContent}>
+          <Image 
+            source={{uri: 'https://s2-valor.glbimg.com/LZyCSHR22BjRuB06S60vWzmKJqQ=/0x0:5408x3355/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2020/T/A/fuvfecS5Od2cxQlrQ5Pw/kym-mackinnon-aerego3rque-unsplash.jpg'}}
+            style={styles.profileImage}
+            />
+          <Text style={styles.profileName}>Seu nome</Text>
+        </View>
+        <View style={styles.notificationContent}>
+          <Ionicons name="md-checkmark-circle" size={32} color="green"/>
+        </View>
+      </View>
+      <View style={styles.groupSearch}>
+        <Text>oii</Text>
+      </View>
+      <View>
+        
+      </View>
+      <View>
+        
       </View>
     </View>
   );

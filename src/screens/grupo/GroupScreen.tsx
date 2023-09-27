@@ -3,12 +3,13 @@ import { View, Text, Button } from 'react-native';
 import { styles } from './GroupScreenStyles';
 import { updateGroup,readGroup } from '../../../backend/group-config/group-service' // Substitua com o caminho correto
 import { DocumentData } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 
 export default function GroupScreen() {
   const [valorMonetario, setValorMonetario] = useState(0);
   const [simboloAtivo, setSimboloAtivo] = useState(false);
-  const [groupData, setGroupData] = useState<DocumentData | null>(null);
+  const [groupData, setGroupData] = useState<DocumentData | null>({ debtFinalDate: null });
 
 
   useEffect(() => {
@@ -18,11 +19,12 @@ export default function GroupScreen() {
     const fetchData = async () => {
       try {
         const data = await readGroup(groupId);
-        setGroupData(data);
+        setGroupData(data); // Define um valor padrão se os dados do grupo não forem encontrados
       } catch (error) {
         console.error('Error reading the group:', error);
       }
     };
+    
 
     fetchData(); // Fetch the initial data
   }, []);
@@ -80,6 +82,8 @@ export default function GroupScreen() {
   // Calcular a divisão
   const division = groupData ? groupData.debtAmount / nomes.length : 0;
   const description = groupData ? groupData.debtDescription : '';
+  const adminPix = groupData ? groupData.adminPix : 'Pix não está disponível';
+
 
   return (
     <View style={styles.container}>
@@ -92,12 +96,11 @@ export default function GroupScreen() {
       ) : (
         <Text>Carregando dados do grupo...</Text>
       )}
-      <View style={styles.card}>
-        <Text style={styles.valorMonetario}>{description}</Text>
-      </View>
 
       <View style={styles.card}>
+        <Text style={styles.valorMonetario}>{description}</Text>
         <Text style={styles.valorMonetario}>Divisão: R$ {division.toFixed(2)}</Text>
+        <Text style={styles.valorMonetario}>Pix: {adminPix}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Diminuir" onPress={diminuirValor} />
