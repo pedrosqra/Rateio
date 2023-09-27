@@ -11,6 +11,7 @@ import {
     getDoc as firestoreGetDoc
 } from 'firebase/firestore';
 
+
 // Users collection reference
 const usersCollection = collection(db, 'users');
 
