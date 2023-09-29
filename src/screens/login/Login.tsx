@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import {ActivityIndicator, Button, Text, TextInput, View} from 'react-native';
 import {login, signup} from '../../../backend/user-config/user-service'
 import styles from "../login/LoginStyles";
-import { onAuthStateChanged } from 'firebase/auth';
-import { firebaseAuth } from '../../../backend/firebase/firebase';
-import { useUserStore } from '../../store/user';
-import { useNavigation } from '@react-navigation/native';
+import {onAuthStateChanged} from 'firebase/auth';
+import {firebaseAuth} from '../../../backend/firebase/firebase';
+import {useUserStore} from '../../store/user';
+import {useNavigation} from '@react-navigation/native';
 
 const Login = () => {
-    const { setPersonalData } = useUserStore()
+    const {setPersonalData} = useUserStore()
 
     const navigation = useNavigation()
 
@@ -44,10 +44,12 @@ const Login = () => {
     }
 
     useEffect(() => {
+        console.log('dnasdsknd')
         onAuthStateChanged(firebaseAuth, (user) => {
             if (user) {
                 setPersonalData(user)
-                navigation.navigate('Home')
+                console.log('aqui')
+                navigation.navigate('Home', {uid: user.uid})
             }
         })
     }, [])

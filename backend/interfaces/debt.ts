@@ -3,4 +3,5 @@ export interface Debt {
     debtorId: string; // ID of the user who owes the debt
     amount: number; // Amount of the debt
     description: string; // Description of the debt
+    isPaid: boolean;
 }

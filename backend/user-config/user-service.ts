@@ -80,7 +80,6 @@ const login = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
         const user = userCredential.user;
-
         // const userData = await readUser(user.uid);
         // if (userData) {
         // }
@@ -119,11 +118,35 @@ const getUsers = async () => {
     return snapshot.docs.map(doc => doc.data());
 }
 
+const getUserData = async (userId) => {
+    try {
+        const userSnapshot = await firestoreGetDoc(userDocument(userId));
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            const groupIds = userData.groups || [];
+            const userDebts = userData.debts || [];
+            return {
+                userDetails: userData,
+                groupIds,
+                userDebts,
+            };
+        } else {
+            console.log('User not found');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error reading user data:', error);
+        return null;
+    }
+};
+
 export {
     deleteUser,
     readUser,
     generateUserId,
     login,
     signup,
-    getUsers
+    getUsers,
+    userDocument,
+    getUserData
 };
