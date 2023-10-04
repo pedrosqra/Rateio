@@ -1,37 +1,41 @@
 import React, {useEffect,useState} from 'react';
 
-import { Text, View, Button, StyleSheet, Image, ScrollView, TextInput } from 'react-native';
+import { Text,TouchableOpacity, View, Button, StyleSheet, Image, ScrollView, TextInput } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import styles from './HomeScreenStyles'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { readUser } from '../../../backend/user-config/user-service';
 import { getGroups } from '../../../backend/group-config/group-service';
 import { DocumentData } from 'firebase/firestore';
-
+import { useNavigation } from '@react-navigation/native';
 
 type RootStackParamList = {
   Home: undefined;
   GroupScreen: undefined;
 };
 
-  type HomeScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'Home'>;
-};
+  // type HomeScreenProps = {
+  // navigation: StackNavigationProp<RootStackParamList, 'Home'>;
+// };
 
 
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen = ({ }) => {
   const [userName, setUserName] = useState('');
   const [groups, setGroups] = useState<DocumentData[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const navigation = useNavigation();
+  
+  const onPressAdicionarGrupo = () => {
+    // Lógica para adicionar novo grupo
+    console.log('Novo grupo adicionado!');
+    // Adicione sua lógica aqui, como abrir um modal ou navegar para outra tela
+  };
 
-  const filteredGroups = groups.filter((group) =>
-    group.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const navigateToGroup = (groupId: string) => {
+    console.log('Navegar para o grupo: ', groupId);
+    navigation.navigate('GroupScreen', { id: groupId });
+};
 
-  const navigateToGroup = () => {
-      navigation.navigate('GroupScreen'); // Navegar para a tela Grupo
-      };
   
   const fetchUserDataAndGroups = async () => {
     try {
@@ -87,13 +91,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         <View style={styles.searchContainer}>
-          <Ionicons name="search-outline" size={24} color="black"/>
-          <TextInput 
-            style={styles.searchInput}
-            placeholder="Pesquisar"
-            placeholderTextColor="#666"
-            onChangeText={(text) => setSearchTerm(text)}
-          />
+          
         </View>
 
         <View style={styles. groupListTitleView}>
@@ -101,18 +99,24 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
         <ScrollView style={styles.list}>
           {groups.map((group) => (
-            <View style={styles.listItem} key={group.groupId}>
-              <View style={styles.groupImageContainer}>
-                <Ionicons name="people-outline" size={28} color="white"/>
+            <TouchableOpacity onPress={() => navigateToGroup(group.groupId)} >
+              <View style={styles.listItem} key={group.groupId}>
+                <View style={styles.groupImageContainer}>
+                  <Ionicons name="people-outline" size={28} color="white"/>
+                </View>
+                <View style={styles.groupInfo}>
+                  <Text style= {styles.groupName}>{group.name}</Text>
+                  <Text style={styles.groupDescription}>{group.debtDescription}</Text>
+                </View>
               </View>
-              <View style={styles.groupInfo}>
-                <Text style= {styles.groupName}>{group.name}</Text>
-                <Text style={styles.groupDescription}>{group.debtDescription}</Text>
-              </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
-        <View>  
+        <View style={styles.addGroupButtonView}>
+          <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
+            <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
+            <Text style={styles.addText}>Adicionar novo grupo</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );

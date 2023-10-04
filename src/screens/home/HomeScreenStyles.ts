@@ -1,6 +1,7 @@
 import {StyleSheet} from 'react-native';
 import Constants from 'expo-constants'
 
+
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
@@ -15,12 +16,13 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between', 
         alignItems: 'center',
         width: '100%',
+        marginTop: 10,
     },
     profileContent: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginLeft: 15,
+        marginLeft: 19,
         color: '#1CC29F',
         flex:1,
     },
@@ -41,6 +43,7 @@ const styles = StyleSheet.create({
     },
     notificationContent: {
         marginRight: 20,
+        marginTop: 10,
     },
     searchContainer: {
         flexDirection: 'row',
@@ -96,8 +99,8 @@ const styles = StyleSheet.create({
     listItem: {
         backgroundColor: '#373B3F', // Set background color to match the container background
         borderRadius: 10, // Add rounded corners
-        padding: 25, // Add padding to create space within the border
-        marginBottom: 10, // Add margin between list items
+        padding: 24, // Add padding to create space within the border
+        marginBottom: 1, // Add margin between list items
         borderWidth: 1, // Add a white border
         borderColor: 'white',
         flexDirection: 'row',
@@ -132,6 +135,30 @@ const styles = StyleSheet.create({
     cardText: {
         fontSize: 16,
         color: '#666',
+    },
+    addGroupButtonView: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    addGroupButton: {
+        flexDirection: 'row',
+        backgroundColor: '#1CC29F',
+        padding: 12,
+        borderRadius: 10,
+        marginTop: 10,
+        marginBottom: 10,
+        width: '100%',
+    },
+    addIcon: {
+        marginRight: 10, // Espaço entre o ícone e o texto
+      },
+    addText: {
+        fontSize: 18,
+        color: '#373B3F',
+        fontWeight: 'bold',
     },
 
 });

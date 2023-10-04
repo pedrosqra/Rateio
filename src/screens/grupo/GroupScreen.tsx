@@ -6,28 +6,25 @@ import { DocumentData } from 'firebase/firestore';
 import { format } from 'date-fns';
 
 
-export default function GroupScreen() {
+const GroupScreen = ({ route }) => {
+  const { id } = route.params;
+
   const [valorMonetario, setValorMonetario] = useState(0);
   const [simboloAtivo, setSimboloAtivo] = useState(false);
   const [groupData, setGroupData] = useState<DocumentData | null>({ debtFinalDate: null });
 
-
   useEffect(() => {
-    // Call the read function when the component mounts
-    const groupId = 'NzShXWT03JEjlksZS9Yo'; // Replace with the desired group ID
-
     const fetchData = async () => {
       try {
-        const data = await readGroup(groupId);
-        setGroupData(data); // Define um valor padrão se os dados do grupo não forem encontrados
+        const data = await readGroup(id);
+        setGroupData(data || { debtFinalDate: null });
       } catch (error) {
         console.error('Error reading the group:', error);
       }
     };
-    
 
-    fetchData(); // Fetch the initial data
-  }, []);
+    fetchData();
+  }, [id]);
 
 
   const aumentarValor = async () => {
