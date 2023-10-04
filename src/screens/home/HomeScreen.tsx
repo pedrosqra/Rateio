@@ -2,7 +2,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import {Button, View} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import {useUserStore} from '../../store/user';
-import {main} from '../../../backend/test';
 import {registerForPushNotificationsAsync, schedulePushNotification} from '../../resources/notifications';
 import styles from './HomeScreenStyles';
 import firebase from 'firebase/compat';
@@ -47,7 +46,7 @@ const HomeScreen = ({route}) => {
         // Fetch user data and debts
         fetchUserDebts();
 
-        main().then((r) => console.log('Main called'));
+        //main().then((r) => console.log('Main called'));
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
             .catch(() => {

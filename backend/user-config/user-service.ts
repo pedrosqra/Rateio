@@ -91,24 +91,23 @@ const login = async (email, password) => {
     }
 };
 
-
-const signup = async (email, password, userData) => {
+const signup = async (email, password, name, pix) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
         const user = userCredential.user;
 
         const userDocumentData = {
             userId: user.uid,
-            email: user.email,
-            ...userData
+            email: email,
+            name: name,
+            pix: pix,
         };
 
         await firestoreSetDoc(userDocument(user.uid), userDocumentData);
-        //await sendEmailVerification(user); // Ainda estudando como fazer isso da melhor forma
 
         return true;
     } catch (error) {
-        console.log(error)
+        console.log(error);
         return false;
     }
 };
