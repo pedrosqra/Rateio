@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     welcome: {
         color: 'white',
         marginBottom: 50,
-        fontSize: 15,
+        fontSize: 25,
         fontWeight: "bold",
     },
     title: {
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     input: {
-        width: '95%',
+        width: '90%',
         height: 45,
         backgroundColor: '#373B3F',
         padding: 10,

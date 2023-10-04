@@ -1,77 +1,91 @@
-import React, {useEffect, useState} from 'react'
-import {ActivityIndicator, Button, Text, TextInput, View} from 'react-native';
-import {login, signup} from '../../../backend/user-config/user-service'
-import styles from "../login/LoginStyles";
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {login} from '../../../backend/user-config/user-service';
+import styles from '../login/LoginStyles';
 import {onAuthStateChanged} from 'firebase/auth';
 import {firebaseAuth} from '../../../backend/firebase/firebase';
 import {useUserStore} from '../../store/user';
 import {useNavigation} from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Login = () => {
-    const {setPersonalData} = useUserStore()
+    const {setPersonalData} = useUserStore();
 
-    const navigation = useNavigation()
+    const navigation = useNavigation();
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const signIn = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const response = await login(email, password);
             if (!response) {
-                alert("Ocorreu um erro ao fazer login. Verifique email e senha.")
+                alert('Ocorreu um erro ao fazer login. Verifique email e senha.');
             }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
-    const signUp = async () => {
-        setLoading(true)
-        try {
-            const response = await signup(email, password, null)
-            if (response) {
-                alert("Conta criada com sucesso. Verifique  seu email.")
-
-            } else {
-                alert("Ocorreu um erro ao criar a conta. Verifique email e senha.")
-            }
-        } finally {
-            setLoading(false)
-        }
-    }
+    const handleSignUpPress = () => {
+        navigation.navigate('SignUp'); // Navigate to SignUp screen
+    };
 
     useEffect(() => {
-        console.log('dnasdsknd')
         onAuthStateChanged(firebaseAuth, (user) => {
             if (user) {
-                setPersonalData(user)
-                console.log('aqui')
-                navigation.navigate('Home', {uid: user.uid})
+                setPersonalData(user);
+                navigation.navigate('Home', {uid: user.uid});
             }
-        })
-    }, [])
+        });
+    }, []);
 
     return (
         <View style={styles.container}>
-            <Text>Login</Text>
-            <TextInput value={email} style={styles.input} placeholder="Email" autoCapitalize="none"
-                       onChangeText={(text) => setEmail(text)}></TextInput>
-            <TextInput value={password} secureTextEntry={true} style={styles.input} placeholder="password"
-                       autoCapitalize="none"
-                       onChangeText={(password) => setPassword(password)}></TextInput>
+            <Image source={require('../../../assets/logo.png')} style={styles.logo}/>
+            <Text style={styles.welcome}>O melhor app para dividir gastos com seus amigos.</Text>
+            <View style={styles.inputContainer}>
+                <Icon name="user" size={20} color="#1CC29F" style={styles.icon}/>
+                <TextInput
+                    value={email}
+                    style={styles.input}
+                    placeholder="Email"
+                    placeholderTextColor={styles.placeholderText.color}
+                    autoCapitalize="none"
+                    onChangeText={(text) => setEmail(text)}
+                />
+            </View>
+
+            <View style={styles.inputContainer}>
+                <Icon name="lock" size={20} color="#1CC29F" style={styles.icon}/>
+                <TextInput
+                    value={password}
+                    secureTextEntry={true}
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor={styles.placeholderText.color}
+                    autoCapitalize="none"
+                    onChangeText={(password) => setPassword(password)}
+                />
+            </View>
+
             {loading ? (
-                <ActivityIndicator size={"large"} color="#0000ff"/>
+                <ActivityIndicator size={'large'} color="#1CC29F"/>
             ) : (
-                <>
-                    <Button title={"Login"} onPress={signIn}/>
-                    <Button title={"Criar conta"} onPress={signUp}/>
-                </>
+                <View style={styles.buttonsContainer}>
+                    <TouchableOpacity onPress={signIn} style={styles.button}>
+                        <Text style={styles.buttonText}>Entrar</Text>
+                    </TouchableOpacity>
+                    <View style={styles.greenSeparator}/>
+                    <TouchableOpacity onPress={handleSignUpPress} style={styles.buttonTwo}>
+                        <Text style={styles.buttonText}>Criar Conta</Text>
+                    </TouchableOpacity>
+                </View>
             )}
         </View>
     );
-}
+};
 
 export default Login;
