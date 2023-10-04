@@ -4,10 +4,14 @@ import { styles } from './GroupScreenStyles';
 import { updateGroup,readGroup } from '../../../backend/group-config/group-service' // Substitua com o caminho correto
 import { DocumentData } from 'firebase/firestore';
 import { format } from 'date-fns';
+import { RouteProp, useRoute } from '@react-navigation/native';
 
 
-const GroupScreen = ({ route }) => {
-  const { id } = route.params;
+
+const GroupScreen = () => {
+  type GroupScreenRouteProp = RouteProp<RootStackParamList, 'GroupScreen'>;
+  const route = useRoute<GroupScreenRouteProp>();
+  const groupId = route.params?.groupId;
 
   const [valorMonetario, setValorMonetario] = useState(0);
   const [simboloAtivo, setSimboloAtivo] = useState(false);
@@ -16,7 +20,7 @@ const GroupScreen = ({ route }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await readGroup(id);
+        const data = await readGroup(groupId);
         setGroupData(data || { debtFinalDate: null });
       } catch (error) {
         console.error('Error reading the group:', error);
@@ -24,7 +28,7 @@ const GroupScreen = ({ route }) => {
     };
 
     fetchData();
-  }, [id]);
+  }, [groupId]);
 
 
   const aumentarValor = async () => {

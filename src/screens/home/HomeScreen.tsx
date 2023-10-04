@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 
 type RootStackParamList = {
   Home: undefined;
-  GroupScreen: undefined;
+  GroupScreen: { groupId: string };
 };
 
   // type HomeScreenProps = {
@@ -33,8 +33,8 @@ const HomeScreen = ({ }) => {
 
   const navigateToGroup = (groupId: string) => {
     console.log('Navegar para o grupo: ', groupId);
-    navigation.navigate('GroupScreen', { id: groupId });
-};
+    navigation.navigate('GroupScreen', { groupId });
+  };
 
   
   const fetchUserDataAndGroups = async () => {
