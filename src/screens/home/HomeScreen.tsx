@@ -1,91 +1,125 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, ScrollView, Text, TouchableOpacity, View} from 'react-native';
-import * as Notifications from 'expo-notifications';
-import {registerForPushNotificationsAsync} from '../../resources/notifications';
+import {Image, ScrollView, Text, TouchableOpacity, View,} from 'react-native';
 import styles from './HomeScreenStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import {readUser} from '../../../backend/user-config/user-service';
+import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+import {DocumentData} from 'firebase/firestore';
 import {useNavigation} from '@react-navigation/native';
-import {readUser,} from '../../../backend/user-config/user-service';
-import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service'
+import {useUserStore} from '../../store/user';
+import {registerForPushNotificationsAsync,} from '../../resources/notifications';
+import firebase from 'firebase/compat';
+import * as Notifications from 'expo-notifications';
 
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-    }),
-});
+type RootStackParamList = {
+    Home: undefined;
+    GroupScreen: { groupId: string };
+};
 
 const HomeScreen = ({route}) => {
     const {uid} = route.params;
-    const [expoPushToken, setExpoPushToken] = useState('');
-    const [notification, setNotification] = useState(null);
-    const notificationListener = useRef();
-    const responseListener = useRef();
-    const [userData, setUserData] = useState(null);
-    const [userDebts, setUserDebts] = useState(new Map());
-    const [groups, setGroups] = useState([]);
+    const [userName, setUserName] = useState('');
+    const [groups, setGroups] = useState<DocumentData[]>([]);
     const navigation = useNavigation();
+    const {email} = useUserStore();
+    const [expoPushToken, setExpoPushToken] = useState<any>('');
+    const [notification, setNotification] = useState<any>();
+    const notificationListener = useRef<any>();
+    const responseListener = useRef<any>();
+    const [userData, setUserData] = useState<firebase.User | null>(null);
+    const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
+
+    const onPressAdicionarGrupo = () => {
+        // Lógica para adicionar novo grupo
+        console.log('Novo grupo adicionado!');
+        // Adicione sua lógica aqui, como abrir um modal ou navegar para outra tela
+    };
+
+    const navigateToGroup = (groupId: string) => {
+        console.log('Navegar para o grupo: ', groupId);
+        navigation.navigate('GroupScreen', {groupId});
+    };
+
+    const fetchUserDataAndGroups = async () => {
+        try {
+            const userData = await readUser(uid);
+            if (userData && userData.name) {
+                setUserName(userData.name);
+            }
+
+            // Fetch the list of groups
+            const allGroupsData: DocumentData[] = await getGroups();
+
+            // Filter the groups to only include those in the user's groups array
+            const userGroupsData = allGroupsData.filter((group) =>
+                userData.groups.includes(group.groupId)
+            );
+
+            setGroups(userGroupsData);
+        } catch (error) {
+            console.error('Error fetching user data and groups:', error);
+        }
+    };
+
+    // Função para obter e definir o nome do usuário
+    const fetchUserName = async () => {
+        try {
+            const userData = await readUser(uid);
+
+            if (userData && userData.name) {
+                setUserName(userData.name);
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchUserDataAndGroups = async () => {
+        // Quando o componente montar, carregue o nome do usuário
+        fetchUserName();
+        fetchUserDataAndGroups();
+
+        const fetchUserDebts = async () => {
             try {
-                // Fetch user data
-                const userData = await readUser(uid);
-                if (userData && userData.name) {
-                    setUserData(userData);
-                }
+                const userDebts = await getDebtsForUser(uid)
 
-                // Fetch the list of groups
-                const groupsData = await getGroups();
-                setGroups(groupsData);
-
-                // Fetch user debts
-                const userDebtsResponse = await getDebtsForUser(uid);
                 const groupedDebts = {};
 
-                userDebtsResponse.forEach((debt) => {
+                userDebts.forEach((debt) => {
                     groupedDebts[debt.groupId] = debt.amount;
                 });
 
                 setUserDebts(groupedDebts);
             } catch (error) {
-                console.error('Error fetching user data and groups:', error);
+                console.error('Error fetching user data:', error);
             }
         };
 
         // Fetch user data and debts
-        fetchUserDataAndGroups();
+        fetchUserDebts();
 
-        // main().then((r) => console.log('Main called'));
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
             .catch(() => {
-                // Handle the error here if needed
             });
 
-        notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-            setNotification(notification);
-        });
+        notificationListener.current = Notifications.addNotificationReceivedListener(
+            (notification) => {
+                setNotification(notification);
+            }
+        );
 
-        responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-            console.log(response);
-        });
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(
+            (response) => {
+                console.log(response);
+            }
+        );
 
         return () => {
             Notifications.removeNotificationSubscription(notificationListener.current);
             Notifications.removeNotificationSubscription(responseListener.current);
         };
     }, []);
-
-    const onPressAdicionarGrupo = () => {
-        console.log('Novo grupo adicionado!');
-    };
-
-    const navigateToGroup = (groupId) => {
-        console.log('Navegar para o grupo: ', groupId);
-        navigation.navigate('GroupScreen', {groupId});
-    };
 
     return (
         <View style={styles.container}>
@@ -98,41 +132,48 @@ const HomeScreen = ({route}) => {
                         }}
                         style={styles.profileImage}
                     />
-                    <Text style={styles.profileName}>{userData?.name}</Text>
+                    <Text style={styles.profileName}>{userName}</Text>
                 </View>
                 <View style={styles.notificationContent}>
                     <Ionicons name="notifications-outline" size={28} color="white"/>
                 </View>
-
-                <View style={styles.searchContainer}></View>
-
-                <View style={styles.groupListTitleView}>
-                    <Text style={styles.groupsListTitle}>Grupos</Text>
-                </View>
-                <ScrollView style={styles.list}>
-                    {groups.map((group) => (
-                        <TouchableOpacity key={group.groupId} onPress={() => navigateToGroup(group.groupId)}>
-                            <View style={styles.listItem} key={group.groupId}>
-                                <View style={styles.groupImageContainer}>
-                                    <Ionicons name="people-outline" size={28} color="white"/>
-                                </View>
-                                <View style={styles.groupInfo}>
-                                    <Text style={styles.groupName}>{group.name}</Text>
-                                    <Text style={styles.groupDescription}>{group.debtDescription}</Text>
-                                    <Text
-                                        style={styles.userDebt}>{`Sua dívida: ${userDebts[group.groupId] || 0}`}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-                <View style={styles.addGroupButtonView}>
-                    <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
-                        <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
-                        <Text style={styles.addText}>Adicionar novo grupo</Text>
-                    </TouchableOpacity>
-                </View>
             </View>
+
+            <View style={styles.searchContainer}></View>
+
+            <View style={styles.groupListTitleView}>
+                <Text style={styles.groupsListTitle}>Grupos</Text>
+            </View>
+            <ScrollView style={styles.list}>
+                {groups.map((group) => (
+                    <TouchableOpacity
+                        key={group.groupId}
+                        onPress={() => navigateToGroup(group.groupId)}
+                    >
+                        <View style={styles.listItem} key={group.groupId}>
+                            <View style={styles.groupImageContainer}>
+                                <Ionicons name="people-outline" size={28} color="white"/>
+                            </View>
+                            <View style={styles.groupInfo}>
+                                <Text style={styles.groupName}>{group.name}</Text>
+                                <Text style={styles.groupDescription}>
+                                    {group.debtDescription}
+                                </Text>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                ))}
+            </ScrollView>
+            <View style={styles.addGroupButtonView}>
+                <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
+                    <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
+                    <Text style={styles.addText}>Adicionar novo grupo</Text>
+                </TouchableOpacity>
+            </View>
+            {/*<Button*/}
+            {/*    title="Press to schedule a notification"*/}
+            {/*    onPress={() => schedulePushNotification()}*/}
+            {/*/>*/}
         </View>
     );
 };

@@ -1,4 +1,5 @@
 import {StyleSheet} from 'react-native';
+import Constants from 'expo-constants'
 
 
 const styles = StyleSheet.create({
@@ -8,7 +9,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#373B3F',
         height: '100%',
-        paddingTop: 10,
+        paddingTop: Constants.statusBarHeight * 2,
     },
     header: {
         flexDirection: 'row',
@@ -35,8 +36,9 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        borderWidth: 2,
-        borderColor: '#1CC29F',
+        borderWidth: 2, // Border width in pixels
+        borderColor: '#1CC29F', // Border color
+        borderStyle: 'solid',
         marginRight: 8,
     },
     notificationContent: {
@@ -51,16 +53,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
-    userDebt: {
-        fontSize: 16,
-        color: 'white',
-        marginBottom: 5,
-    },
+
     searchInput: {
         padding: 10,
         marginBottom: 10,
         borderRadius: 5,
     },
+
     groupListTitleView: {
         backgroundColor: '#373B3F',
         paddingHorizontal: 20,
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#373B3F', // Set background color to match the container background
         borderRadius: 10, // Add rounded corners
         padding: 24, // Add padding to create space within the border
-        marginBottom: 1, // Add margin between list items
+        marginBottom: 14, // Add margin between list items
         borderWidth: 1, // Add a white border
         borderColor: 'white',
         flexDirection: 'row',
