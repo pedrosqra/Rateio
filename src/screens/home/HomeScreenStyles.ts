@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         borderWidth: 2, // Border width in pixels
         borderColor: '#1CC29F', // Border color
-        borderStyle: 'solid',
         marginRight: 8,
     },
     notificationContent: {
