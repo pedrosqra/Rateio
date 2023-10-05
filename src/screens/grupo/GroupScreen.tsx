@@ -6,7 +6,10 @@ import { DocumentData } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { RouteProp, useRoute } from '@react-navigation/native';
 
-
+type RootStackParamList = {
+  Home: undefined;
+  GroupScreen: { groupId: string };
+};
 
 const GroupScreen = () => {
   type GroupScreenRouteProp = RouteProp<RootStackParamList, 'GroupScreen'>;
@@ -38,13 +41,13 @@ const GroupScreen = () => {
         const updatedDebtAmount = groupData.debtAmount + 10;
 
         // Update the debtAmount in Firestore
-        await updateGroup('NzShXWT03JEjlksZS9Yo', { debtAmount: updatedDebtAmount }); // Replace with the actual group ID
+        await updateGroup(groupId, { debtAmount: updatedDebtAmount }); // Replace with the actual group ID
 
         // Update the state to reflect the change
         setValorMonetario(updatedDebtAmount);
 
         // Fetch the latest group data again to ensure it's up-to-date
-        const updatedData = await readGroup('NzShXWT03JEjlksZS9Yo'); // Fetch the latest data
+        const updatedData = await readGroup(groupId); // Fetch the latest data
         setGroupData(updatedData);
       }
     } catch (error) {
@@ -58,15 +61,15 @@ const GroupScreen = () => {
       if (groupData) {
         // Increase the debtAmount by 10
         const updatedDebtAmount = groupData.debtAmount - 10;
-
+        console.log(updatedDebtAmount);
         // Update the debtAmount in Firestore
-        await updateGroup('NzShXWT03JEjlksZS9Yo', { debtAmount: updatedDebtAmount }); // Replace with the actual group ID
+        await updateGroup(groupId, { debtAmount: updatedDebtAmount }); // Replace with the actual group ID
 
         // Update the state to reflect the change
         setValorMonetario(updatedDebtAmount);
 
         // Fetch the latest group data again to ensure it's up-to-date
-        const updatedData = await readGroup('NzShXWT03JEjlksZS9Yo'); // Fetch the latest data
+        const updatedData = await readGroup(groupId); // Fetch the latest data
         setGroupData(updatedData);
       }
     } catch (error) {
@@ -121,3 +124,5 @@ const GroupScreen = () => {
     </View>
   );
 }
+
+export default GroupScreen;

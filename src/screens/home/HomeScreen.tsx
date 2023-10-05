@@ -34,6 +34,7 @@ const HomeScreen = ({ }) => {
   const navigateToGroup = (groupId: string) => {
     console.log('Navegar para o grupo: ', groupId);
     navigation.navigate('GroupScreen', { groupId });
+    
   };
 
   
@@ -99,7 +100,7 @@ const HomeScreen = ({ }) => {
         </View>
         <ScrollView style={styles.list}>
           {groups.map((group) => (
-            <TouchableOpacity onPress={() => navigateToGroup(group.groupId)} >
+            <TouchableOpacity key={group.groupId} onPress={() => navigateToGroup(group.groupId)} >
               <View style={styles.listItem} key={group.groupId}>
                 <View style={styles.groupImageContainer}>
                   <Ionicons name="people-outline" size={28} color="white"/>
