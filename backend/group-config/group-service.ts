@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import {Group} from "../interfaces/groups";
 import {userDocument} from '../user-config/user-service';
+import {Debt} from "../interfaces/debt";
 
 // Collections references
 const groupsCollection = collection(db, 'groups');
@@ -45,13 +46,16 @@ const createGroupWithSharedDebt = async (
     try {
         // Step 1: Create the group
         const newGroupId = generateGroupId();
+        const currentDate = new Date(); // Get the current date
+
         const groupData = {
             groupId: newGroupId,
             adminId,
             adminPix,
             debtAmount: sharedDebtAmount,
             debtDescription: "Shared Debt",
-            debtFinalDate: new Date(),
+            debtFinalDate: currentDate, // Set the final date as the current date
+            dateCreated: currentDate, // Set the dateCreated as the current date
             name: groupName,
             members: [adminId, ...members],
         };
@@ -105,12 +109,42 @@ const createGroupWithSharedDebt = async (
 };
 
 // Function to add an individual debt to the 'debts' collection
-const addDebt = async (debtData: any) => {
+const addDebt = async (debtData: Debt) => {
     try {
+        const currentDate = new Date();
+
         const debtDocRef = debtDocument(debtData.groupId, debtData.debtorId);
-        await firestoreSetDoc(debtDocRef, debtData);
+        const debtDataWithPayment = {
+            ...debtData,
+            isPaid: false,
+            datePaid: null,
+            dateCreated: currentDate,
+        };
+
+        await firestoreSetDoc(debtDocRef, debtDataWithPayment);
     } catch (error) {
         console.error("Error adding individual debt:", error);
+    }
+};
+
+
+const setDebtAsPaid = async (groupId, debtorId, paidDate) => {
+    try {
+        const debtDocRef = debtDocument(groupId, debtorId);
+        const debtSnapshot = await firestoreGetDoc(debtDocRef);
+
+        if (debtSnapshot.exists()) {
+            await firestoreUpdateDoc(debtDocRef, {
+                isPaid: true, // Set the debt as paid
+                datePaid: paidDate, // Set the date when the debt was paid
+            });
+
+            console.log('Debt marked as paid successfully');
+        } else {
+            console.log('Debt not found');
+        }
+    } catch (error) {
+        console.error('Error marking debt as paid:', error);
     }
 };
 
@@ -311,6 +345,12 @@ const getDebtsForUser = async (userId) => {
     return allDebts.filter((debt) => debt.debtorId === userId);
 };
 
+const getPaidDebtsForUser = async (userId) => {
+    const snapshot = await getDocs(debtsCollection);
+    const allDebts = snapshot.docs.map((doc) => doc.data());
+    return allDebts.filter((debt) => debt.debtorId === userId && debt.isPaid == true);
+};
+
 export {
     createGroupWithSharedDebt,
     checkGroupIdExists,
@@ -320,5 +360,6 @@ export {
     deleteGroup,
     deleteUserFromGroup,
     addUserToGroup,
-    getDebtsForUser
+    getDebtsForUser,
+    getPaidDebtsForUser
 };
