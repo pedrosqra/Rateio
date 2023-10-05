@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         marginTop: 10,
@@ -24,10 +24,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginLeft: 19,
         color: '#1CC29F',
-        flex:1,
+        flex: 1,
     },
     profileName: {
-        flex:1,
+        flex: 1,
         fontSize: 20,
         color: '#1CC29F',
         fontWeight: 'bold',
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         borderWidth: 2, // Border width in pixels
         borderColor: '#1CC29F', // Border color
-        borderStyle: 'solid',
         marginRight: 8,
     },
     notificationContent: {
@@ -58,15 +57,15 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 10,
         borderRadius: 5,
-      },
-    
+    },
+
     groupListTitleView: {
         backgroundColor: '#373B3F',
         paddingHorizontal: 20,
         paddingVertical: 10,
         flexDirection: 'row', // Para ocupar toda a largura
         alignItems: 'flex-start', // Alinhar ao início da tela (à esquerda)
-        justifyContent: 'flex-start', 
+        justifyContent: 'flex-start',
         marginRight: '70%',
     },
     groupsListTitle: {
@@ -90,7 +89,7 @@ const styles = StyleSheet.create({
     groupInfo: {
         flex: 1, // Para o nome do grupo ocupar o espaço restante
         flexDirection: 'column', // Layout de coluna para nome e descrição
-      },
+    },
     list: {
         width: '100%',
         paddingHorizontal: 20,
@@ -100,13 +99,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#373B3F', // Set background color to match the container background
         borderRadius: 10, // Add rounded corners
         padding: 24, // Add padding to create space within the border
-        marginBottom: 1, // Add margin between list items
+        marginBottom: 14, // Add margin between list items
         borderWidth: 1, // Add a white border
         borderColor: 'white',
         flexDirection: 'row',
         alignItems: 'center',
-      },
-    
+    },
+
     title: {
         fontSize: 30,
         color: 'white',
@@ -154,7 +153,7 @@ const styles = StyleSheet.create({
     },
     addIcon: {
         marginRight: 10, // Espaço entre o ícone e o texto
-      },
+    },
     addText: {
         fontSize: 18,
         color: '#373B3F',
