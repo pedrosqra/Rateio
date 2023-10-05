@@ -46,7 +46,7 @@ const HomeScreen = ({route}) => {
         // Fetch user data and debts
         fetchUserDebts();
 
-        //main().then((r) => console.log('Main called'));
+        // main().then((r) => console.log('Main called'));
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
             .catch(() => {
