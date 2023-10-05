@@ -1,5 +1,4 @@
 import {StyleSheet} from 'react-native';
-import Constants from 'expo-constants'
 
 
 const styles = StyleSheet.create({
@@ -9,11 +8,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#373B3F',
         height: '100%',
-        paddingTop: Constants.statusBarHeight * 2,
+        paddingTop: 10,
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         marginTop: 10,
@@ -24,10 +23,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginLeft: 19,
         color: '#1CC29F',
-        flex:1,
+        flex: 1,
     },
     profileName: {
-        flex:1,
+        flex: 1,
         fontSize: 20,
         color: '#1CC29F',
         fontWeight: 'bold',
@@ -36,9 +35,8 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        borderWidth: 2, // Border width in pixels
-        borderColor: '#1CC29F', // Border color
-        borderStyle: 'solid',
+        borderWidth: 2,
+        borderColor: '#1CC29F',
         marginRight: 8,
     },
     notificationContent: {
@@ -53,20 +51,23 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 10,
     },
-
+    userDebt: {
+        fontSize: 16,
+        color: 'white',
+        marginBottom: 5,
+    },
     searchInput: {
         padding: 10,
         marginBottom: 10,
         borderRadius: 5,
-      },
-    
+    },
     groupListTitleView: {
         backgroundColor: '#373B3F',
         paddingHorizontal: 20,
         paddingVertical: 10,
         flexDirection: 'row', // Para ocupar toda a largura
         alignItems: 'flex-start', // Alinhar ao início da tela (à esquerda)
-        justifyContent: 'flex-start', 
+        justifyContent: 'flex-start',
         marginRight: '70%',
     },
     groupsListTitle: {
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     groupInfo: {
         flex: 1, // Para o nome do grupo ocupar o espaço restante
         flexDirection: 'column', // Layout de coluna para nome e descrição
-      },
+    },
     list: {
         width: '100%',
         paddingHorizontal: 20,
@@ -105,8 +106,8 @@ const styles = StyleSheet.create({
         borderColor: 'white',
         flexDirection: 'row',
         alignItems: 'center',
-      },
-    
+    },
+
     title: {
         fontSize: 30,
         color: 'white',
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     },
     addIcon: {
         marginRight: 10, // Espaço entre o ícone e o texto
-      },
+    },
     addText: {
         fontSize: 18,
         color: '#373B3F',
