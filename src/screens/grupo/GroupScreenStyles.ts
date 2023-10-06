@@ -6,36 +6,76 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#373B3F', // Define a cor de fundo azul
+    paddingHorizontal: 25
   },
-  card: {
-    backgroundColor: 'white',
-    padding: 20,
+  arrow: {
+    position: 'absolute',
+    left: 30,
+    top: 50
+  },
+  image: {
+    backgroundColor: '#fff',
+    width: 96,
+    height: 96,
+    marginBottom: 8,
+    borderWidth: 2, // Border width in pixels
+    borderColor: '#1CC29F', // Border color
+  },
+  groupInfo: {
+    backgroundColor: "#fff",
     borderRadius: 10,
-    elevation: 5,
+    width: "100%",
+    marginTop: 25,
+    paddingVertical: 18,
+    paddingHorizontal: 15,
+    gap: 15
   },
-  valorMonetario: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  buttonContainer: {
+  inline: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20, // Espaçamento entre o card e os botões
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  innerGroup: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  textBold: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: "#333",
+  },
+  text: {
+    fontSize: 16,
+    color: "#333",
+    marginRight: 5
+  },
+  participantInfo: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  participantImage: {
+    width: 47,
+    height: 47,
+    backgroundColor: "#fff",
+    borderRadius: 30
+  },
+  participantName: {
+    fontSize: 14,
+    color: "#333",
+    marginLeft: 15
   },
   button: {
-    padding: 10,
+    width: "100%",
+    height: 45,
+    backgroundColor: "#fff",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 25,
+    borderRadius: 10
   },
-  nomeText: {
-    fontSize: 18,               // Tamanho da fonte
-    fontWeight: 'bold',        // Texto em negrito
-    marginVertical: 5,         // Espaçamento vertical entre os nomes
-    color: '#333',             // Cor do texto
-  },
-  divisao: {
-    // Estilos para a divisão
-    fontSize: 18, // Tamanho da fonte
-    fontWeight: 'bold', // Peso da fonte
-    marginTop: 10, // Espaçamento superior
-    color: 'blue', // Cor do texto (pode ser ajustada conforme necessário)
-  },
+  buttonText: {
+    fontSize: 16,
+    color: "#d73018",
+    fontWeight: 'bold'
+  }
 });

@@ -1,19 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Text, View} from 'react-native';
-import {styles} from './GroupScreenStyles';
-import {getGroupById, updateGroup} from '../../../backend/group-config/group-service' // Substitua com o caminho correto
+import {Text, View, ActivityIndicator, Image, Pressable} from 'react-native';
+
+import { AntDesign } from '@expo/vector-icons';
+
 import {DocumentData} from 'firebase/firestore';
-import {RouteProp, useRoute} from '@react-navigation/native';
 
-type RootStackParamList = {
-    Home: undefined;
-    GroupScreen: { groupId: string };
-};
+import {getGroupById, updateGroup} from '../../../backend/group-config/group-service' // Substitua com o caminho correto
 
-const GroupScreen = () => {
-    type GroupScreenRouteProp = RouteProp<RootStackParamList, 'GroupScreen'>;
-    const route = useRoute<GroupScreenRouteProp>();
-    const groupId = route.params?.groupId;
+import {styles} from './GroupScreenStyles';
+import { Props } from './types';
+
+const GroupScreen = ({
+    navigation,
+    route
+}: Props) => {
+    const groupId = route.params.groupId;
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     const [valorMonetario, setValorMonetario] = useState(0);
     const [simboloAtivo, setSimboloAtivo] = useState(false);
@@ -21,11 +25,15 @@ const GroupScreen = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true)
+
             try {
                 const data = await getGroupById(groupId);
                 setGroupData(data || {debtFinalDate: null});
             } catch (error) {
                 console.error('Error reading the group:', error);
+            } finally {
+                setIsLoading(false)
             }
         };
 
@@ -80,46 +88,88 @@ const GroupScreen = () => {
         setSimboloAtivo(!simboloAtivo);
     };
 
-    const nomes = ['Nome 1', 'Nome 2', 'Nome 3'];
+    // const nomes = ['Nome 1', 'Nome 2', 'Nome 3'];
 
-    // Calcular a divisão
-    const division = groupData ? groupData.debtAmount / nomes.length : 0;
-    const description = groupData ? groupData.debtDescription : '';
-    const adminPix = groupData ? groupData.adminPix : 'Pix não está disponível';
-
+    // // Calcular a divisão
+    // const division = groupData ? groupData.debtAmount / nomes.length : 0;
+    // const description = groupData ? groupData.debtDescription : '';
+    // const adminPix = groupData ? groupData.adminPix : 'Pix não está disponível';
 
     return (
         <View style={styles.container}>
-            {groupData ? (
-                <View style={styles.card}>
-                    <Text style={styles.nomeText}>{groupData.name}</Text>
-                    <Text style={styles.valorMonetario}>R$ {groupData.debtAmount}</Text>
-                    {/* Outros dados do grupo que você deseja renderizar */}
-                </View>
-            ) : (
-                <Text>Carregando dados do grupo...</Text>
-            )}
-
-            <View style={styles.card}>
-                <Text style={styles.valorMonetario}>{description}</Text>
-                <Text style={styles.valorMonetario}>Divisão: R$ {division.toFixed(2)}</Text>
-                <Text style={styles.valorMonetario}>Pix: {adminPix}</Text>
-            </View>
-            <View style={styles.buttonContainer}>
-                <Button title="Diminuir" onPress={diminuirValor}/>
-                <Button title="Aumentar" onPress={aumentarValor}/>
-            </View>
-            <View>
-                {nomes.map((nome, index) => (
-                    <Text key={index} style={styles.nomeText}>
-                        {nome}{simboloAtivo ? '✔️ ' : '❌ '}
-                    </Text>
-                ))}
-            </View>
-            <Button
-                title={simboloAtivo ? 'Desativar Símbolo' : 'Ativar Símbolo'}
-                onPress={toggleSimbolo}
+            <AntDesign
+                onPress={() => navigation.goBack()}
+                name="arrowleft"
+                size={30}
+                color="white"
+                style={styles.arrow}
             />
+            { isLoading ? (
+                <ActivityIndicator size={'large'} color={"#fff"}/>
+            ) : (
+                <>
+                    <Image
+                        source={{
+                            uri: 'https://s2-valor.glbimg.com/LZyCSHR22BjRuB06S60vWzmKJqQ=/0x0:5408x3355/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2020/T/A/fuvfecS5Od2cxQlrQ5Pw/kym-mackinnon-aerego3rque-unsplash.jpg',
+                        }}
+                        style={styles.image}
+                    />
+                    <View style={styles.groupInfo}>
+                        <Pressable
+                            onPress={() => console.log('GROUP PRESS')}
+                            style={styles.inline}
+                        >
+                            <Text style={styles.textBold}>Nome do grupo</Text>
+                            <View style={styles.innerGroup}>
+                                <Text style={styles.text}>{groupData?.name}</Text>
+                                <AntDesign
+                                    name="right"
+                                    size={12}
+                                />
+                            </View>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => console.log('HISTORIC PRESS')}
+                            style={styles.inline}
+                        >
+                            <Text style={styles.textBold}>Histórico</Text>
+                            <AntDesign
+                                name="right"
+                                size={12}
+                            />
+                        </Pressable>
+                    </View>
+                    <View style={styles.groupInfo}>
+                        <Pressable
+                            onPress={() => console.log('PARTICIPANTS PRESS')}
+                            style={styles.inline}
+                        >
+                            <Text style={styles.textBold}>Participantes</Text>
+                            <AntDesign
+                                name="right"
+                                size={12}
+                            />
+                        </Pressable>
+                        {groupData?.members && groupData.members.map((participantId: string, index: number) => (
+                            <View key={index} style={styles.participantInfo}>
+                                <Image
+                                    source={{
+                                        uri:'https://s2-valor.glbimg.com/LZyCSHR22BjRuB06S60vWzmKJqQ=/0x0:5408x3355/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2020/T/A/fuvfecS5Od2cxQlrQ5Pw/kym-mackinnon-aerego3rque-unsplash.jpg',
+                                    }}
+                                    style={styles.participantImage}
+                                />
+                                <Text style={styles.participantName}>{participantId}</Text>
+                            </View>
+                        ))}
+                    </View>
+                    <Pressable
+                        onPress={() => console.log('FINALIZAR GRUPO')}
+                        style={styles.button}
+                    >
+                        <Text style={styles.buttonText}>Finalizar Grupo</Text>
+                    </Pressable>
+                </>
+            )}
         </View>
     );
 }

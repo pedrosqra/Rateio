@@ -1,22 +1,26 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Image, ScrollView, Text, TouchableOpacity, View, TextInput} from 'react-native';
-import styles from './HomeScreenStyles';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {readUser} from '../../../backend/user-config/user-service';
-import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+import * as Notifications from 'expo-notifications';
 import {DocumentData} from 'firebase/firestore';
 import {useNavigation} from '@react-navigation/native';
-import {useUserStore} from '../../store/user';
+
 import {registerForPushNotificationsAsync,} from '../../resources/notifications';
-import firebase from 'firebase/compat';
-import * as Notifications from 'expo-notifications';
 
-type RootStackParamList = {
-    Home: undefined;
-    GroupScreen: { groupId: string };
-};
+import {readUser} from '../../../backend/user-config/user-service';
+import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
 
-const SearchBar = ({ placeholder, onChangeText }) => {
+import styles from './HomeScreenStyles';
+import { Props } from './types';
+
+const SearchBar = ({
+    placeholder,
+    onChangeText
+}: {
+    placeholder: string,
+    onChangeText: (text: string) => void
+}) => {
     return (
       <View style={styles.searchBarContainer}>
         <TextInput
@@ -26,24 +30,22 @@ const SearchBar = ({ placeholder, onChangeText }) => {
         />
       </View>
     );
-  };
+};
 
-
-
-const HomeScreen = ({route}) => {
+const HomeScreen = ({
+    route
+}: Props) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
     const [groups, setGroups] = useState<DocumentData[]>([]);
     const navigation = useNavigation();
-    const {email} = useUserStore();
     const [expoPushToken, setExpoPushToken] = useState<any>('');
     const [notification, setNotification] = useState<any>();
     const notificationListener = useRef<any>();
     const responseListener = useRef<any>();
-    const [userData, setUserData] = useState<firebase.User | null>(null);
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
-    
+
     const filteredGroups = groups.filter(group =>
         group.name.toLowerCase().includes(searchText.toLowerCase())
     );
@@ -56,7 +58,7 @@ const HomeScreen = ({route}) => {
 
     const navigateToGroup = (groupId: string) => {
         console.log('Navegar para o grupo: ', groupId);
-        navigation.navigate('GroupScreen', {groupId});
+        navigation.navigate('GroupScreen', { groupId });
     };
 
     const fetchUserDataAndGroups = async () => {
@@ -71,7 +73,7 @@ const HomeScreen = ({route}) => {
 
             // Filter the groups to only include those in the user's groups array
             const userGroupsData = allGroupsData.filter((group) =>
-                userData.groups.includes(group.groupId)
+                userData?.groups ? userData.groups.includes(group.groupId) : []
             );
 
             setGroups(userGroupsData);
@@ -119,8 +121,7 @@ const HomeScreen = ({route}) => {
 
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
-            .catch(() => {
-            });
+            .catch(() => {});
 
         notificationListener.current = Notifications.addNotificationReceivedListener(
             (notification) => {
@@ -157,7 +158,6 @@ const HomeScreen = ({route}) => {
                     <Ionicons name="notifications-outline" size={28} color="white"/>
                 </View>
             </View>
-
             <View style={styles.searchBarContainer}>
                 <Ionicons name="search-outline" size={24} color="black"/>
                 <TextInput
@@ -165,9 +165,7 @@ const HomeScreen = ({route}) => {
                     placeholder={'Pesquisar'}
                     onChangeText={(text) => setSearchText(text)}
                 />
-                
             </View>
-
             <View style={styles.groupListTitleView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
             </View>
@@ -197,10 +195,6 @@ const HomeScreen = ({route}) => {
                     <Text style={styles.addText}>Adicionar novo grupo</Text>
                 </TouchableOpacity>
             </View>
-            {/*<Button*/}
-            {/*    title="Press to schedule a notification"*/}
-            {/*    onPress={() => schedulePushNotification()}*/}
-            {/*/>*/}
         </View>
     );
 };
