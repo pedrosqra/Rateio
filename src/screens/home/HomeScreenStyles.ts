@@ -44,20 +44,25 @@ const styles = StyleSheet.create({
         marginRight: 20,
         marginTop: 10,
     },
-    searchContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-    },
-
-    searchInput: {
+    searchBarContainer: {
+        backgroundColor: '#D2D2D2',
         padding: 10,
-        marginBottom: 10,
-        borderRadius: 5,
-    },
+        borderRadius: 25,
+        margin: 10,
+        width: '91%',
+        marginTop: 28,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        color: 'white',
+        
+      },
+      
+    searchInput: {
+        fontSize: 16,
+        marginLeft: 15,
+        width: '100%',
+        color: 'black',
+      },
 
     groupListTitleView: {
         backgroundColor: '#373B3F',
