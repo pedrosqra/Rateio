@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {readUser, signOut} from '../../../backend/user-config/user-service';
-import {Image, ScrollView, Text, TouchableOpacity, View,} from 'react-native';
+import {Image, ScrollView, Text, TouchableOpacity, View, TextInput} from 'react-native';
 import styles from './HomeScreenStyles';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
@@ -16,6 +16,20 @@ type RootStackParamList = {
     GroupScreen: { groupId: string };
 };
 
+const SearchBar = ({ placeholder, onChangeText }) => {
+    return (
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder={placeholder}
+          onChangeText={onChangeText}
+        />
+      </View>
+    );
+  };
+
+
+
 const HomeScreen = ({route}) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
@@ -28,6 +42,11 @@ const HomeScreen = ({route}) => {
     const responseListener = useRef<any>();
     const [userData, setUserData] = useState<firebase.User | null>(null);
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
+    const [searchText, setSearchText] = useState('');
+
+    const filteredGroups = groups.filter(group =>
+        group.name.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     const onPressAdicionarGrupo = () => {
         // Lógica para adicionar novo grupo
@@ -153,13 +172,21 @@ const HomeScreen = ({route}) => {
                 </View>
             </View>
 
-            <View style={styles.searchContainer}></View>
+            <View style={styles.searchBarContainer}>
+                <Ionicons name="search-outline" size={24} color="black"/>
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder={'Pesquisar'}
+                    onChangeText={(text) => setSearchText(text)}
+                />
+
+            </View>
 
             <View style={styles.groupListTitleView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
             </View>
             <ScrollView style={styles.list}>
-                {groups.map((group) => (
+                {filteredGroups.map((group) => (
                     <TouchableOpacity
                         key={group.groupId}
                         onPress={() => navigateToGroup(group.groupId)}
