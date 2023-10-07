@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Image, ScrollView, Text, TouchableOpacity, View, TextInput} from 'react-native';
+import {Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Notifications from 'expo-notifications';
@@ -12,29 +12,29 @@ import {readUser} from '../../../backend/user-config/user-service';
 import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
 
 import styles from './HomeScreenStyles';
-import { Props } from './types';
+import {Props} from './types';
 
 const SearchBar = ({
-    placeholder,
-    onChangeText
-}: {
+                       placeholder,
+                       onChangeText
+                   }: {
     placeholder: string,
     onChangeText: (text: string) => void
 }) => {
     return (
-      <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
-        />
-      </View>
+        <View style={styles.searchBarContainer}>
+            <TextInput
+                style={styles.searchInput}
+                placeholder={placeholder}
+                onChangeText={onChangeText}
+            />
+        </View>
     );
 };
 
 const HomeScreen = ({
-    route
-}: Props) => {
+                        route
+                    }: Props) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
     const [groups, setGroups] = useState<DocumentData[]>([]);
@@ -58,7 +58,7 @@ const HomeScreen = ({
 
     const navigateToGroup = (groupId: string) => {
         console.log('Navegar para o grupo: ', groupId);
-        navigation.navigate('GroupScreen', { groupId });
+        navigation.navigate('GroupScreen', {groupId});
     };
 
     const fetchUserDataAndGroups = async () => {
@@ -121,7 +121,8 @@ const HomeScreen = ({
 
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
-            .catch(() => {});
+            .catch(() => {
+            });
 
         notificationListener.current = Notifications.addNotificationReceivedListener(
             (notification) => {
@@ -148,7 +149,7 @@ const HomeScreen = ({
                     <Image
                         source={{
                             uri:
-                                'https://s2-valor.glbimg.com/LZyCSHR22BjRuB06S60vWzmKJqQ=/0x0:5408x3355/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2020/T/A/fuvfecS5Od2cxQlrQ5Pw/kym-mackinnon-aerego3rque-unsplash.jpg',
+                                'https://picsum.photos/300/310',
                         }}
                         style={styles.profileImage}
                     />
