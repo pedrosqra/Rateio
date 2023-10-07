@@ -54,9 +54,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
         color: 'white',
-        
+
       },
-      
+
     searchInput: {
         fontSize: 16,
         marginLeft: 15,
@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
         marginTop: 10,
+        minWidth: 80
     },
     groupImageContainer: {
         marginRight: 10,
