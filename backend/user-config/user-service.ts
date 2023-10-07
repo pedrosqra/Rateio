@@ -80,9 +80,6 @@ const login = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
         const user = userCredential.user;
-        // const userData = await readUser(user.uid);
-        // if (userData) {
-        // }
 
         return true;
     } catch (error) {

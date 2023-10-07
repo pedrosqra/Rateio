@@ -18,7 +18,6 @@ const SignUp = () => {
     const signUp = async () => {
         setLoading(true)
         try {
-            console.log(email, password, name, pix)
             const response = await signup(email, password, name, pix)
             if (response) {
                 alert("Conta criada com sucesso. Verifique  seu email.")
