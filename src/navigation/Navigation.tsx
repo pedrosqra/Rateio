@@ -1,22 +1,19 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+
 import HomeScreen from '../screens/home/HomeScreen'; // Importe a tela HomeScreen
 import GroupScreen from '../screens/grupo/GroupScreen'; // Importe a tela GrupoScreen
 
-type RootStackParamList = {
-  Home: undefined;
-  GroupScreen: { groupId: string };
-};
-
+import { RootStackParamList } from './types';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
 const Navigation = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName="Home" 
+      <Stack.Navigator
+        initialRouteName="Home"
         screenOptions={{
           headerShown: false
         }}>

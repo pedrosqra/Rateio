@@ -1,12 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {readUser, signOut} from '../../../backend/user-config/user-service';
-import {Image, ScrollView, Text, TouchableOpacity, View, TextInput} from 'react-native';
-import styles from './HomeScreenStyles';
+import {Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
 import {DocumentData} from 'firebase/firestore';
 import {CommonActions, useNavigation} from '@react-navigation/native';
-import {useUserStore} from '../../store/user';
 import {registerForPushNotificationsAsync,} from '../../resources/notifications';
 import firebase from 'firebase/compat';
 import * as Notifications from 'expo-notifications';
@@ -16,31 +14,38 @@ type RootStackParamList = {
     GroupScreen: { groupId: string };
 };
 
-const SearchBar = ({ placeholder, onChangeText }) => {
+import styles from './HomeScreenStyles';
+import {Props} from './types';
+
+const SearchBar = ({
+                       placeholder,
+                       onChangeText
+                   }: {
+    placeholder: string,
+    onChangeText: (text: string) => void
+}) => {
     return (
-      <View style={styles.searchBarContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder={placeholder}
-          onChangeText={onChangeText}
-        />
-      </View>
+        <View style={styles.searchBarContainer}>
+            <TextInput
+                style={styles.searchInput}
+                placeholder={placeholder}
+                onChangeText={onChangeText}
+            />
+        </View>
     );
-  };
+};
 
-
-
-const HomeScreen = ({route}) => {
+const HomeScreen = ({
+                        route
+                    }: Props) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
     const [groups, setGroups] = useState<DocumentData[]>([]);
     const navigation = useNavigation();
-    const {email} = useUserStore();
     const [expoPushToken, setExpoPushToken] = useState<any>('');
     const [notification, setNotification] = useState<any>();
     const notificationListener = useRef<any>();
     const responseListener = useRef<any>();
-    const [userData, setUserData] = useState<firebase.User | null>(null);
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
 
@@ -71,7 +76,7 @@ const HomeScreen = ({route}) => {
 
             // Filter the groups to only include those in the user's groups array
             const userGroupsData = allGroupsData.filter((group) =>
-                userData.groups.includes(group.groupId)
+                userData?.groups ? userData.groups.includes(group.groupId) : []
             );
 
             setGroups(userGroupsData);
@@ -161,7 +166,7 @@ const HomeScreen = ({route}) => {
                     <Image
                         source={{
                             uri:
-                                'https://s2-valor.glbimg.com/LZyCSHR22BjRuB06S60vWzmKJqQ=/0x0:5408x3355/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2020/T/A/fuvfecS5Od2cxQlrQ5Pw/kym-mackinnon-aerego3rque-unsplash.jpg',
+                                'https://picsum.photos/300/310',
                         }}
                         style={styles.profileImage}
                     />
@@ -171,7 +176,6 @@ const HomeScreen = ({route}) => {
                     <Ionicons name="notifications-outline" size={28} color="white"/>
                 </View>
             </View>
-
             <View style={styles.searchBarContainer}>
                 <Ionicons name="search-outline" size={24} color="black"/>
                 <TextInput
@@ -181,7 +185,6 @@ const HomeScreen = ({route}) => {
                 />
 
             </View>
-
             <View style={styles.groupListTitleView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
             </View>
