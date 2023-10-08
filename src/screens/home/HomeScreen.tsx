@@ -51,9 +51,8 @@ const HomeScreen = ({
     );
 
     const onPressAdicionarGrupo = () => {
-        // Lógica para adicionar novo grupo
-        console.log('Novo grupo adicionado!');
-        // Adicione sua lógica aqui, como abrir um modal ou navegar para outra tela
+        navigation.navigate('CreateGroup', {uid});
+        console.log('Criando grupo');
     };
 
     const navigateToGroup = (groupId: string) => {
