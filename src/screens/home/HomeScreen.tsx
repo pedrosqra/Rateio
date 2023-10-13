@@ -6,16 +6,14 @@ import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-se
 import {DocumentData} from 'firebase/firestore';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import {registerForPushNotificationsAsync,} from '../../resources/notifications';
-import firebase from 'firebase/compat';
 import * as Notifications from 'expo-notifications';
+import styles from './HomeScreenStyles';
+import {Props} from './types';
 
 type RootStackParamList = {
     Home: undefined;
     GroupScreen: { groupId: string };
 };
-
-import styles from './HomeScreenStyles';
-import {Props} from './types';
 
 const SearchBar = ({
                        placeholder,
@@ -111,7 +109,6 @@ const HomeScreen = ({
                 userDebts.forEach((debt) => {
                     groupedDebts[debt.groupId] = debt.amount;
                 });
-
                 setUserDebts(groupedDebts);
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -142,7 +139,7 @@ const HomeScreen = ({
             Notifications.removeNotificationSubscription(notificationListener.current);
             Notifications.removeNotificationSubscription(responseListener.current);
         };
-    }, []);
+    }, [route.params, groups]);
 
     const handleLogout = async () => {
         try {

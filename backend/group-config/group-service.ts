@@ -196,8 +196,40 @@ const updateGroup = async (groupId: string, updatedFields: Group) => {
 // Function to delete a group by ID
 const deleteGroup = async (groupId: string) => {
     try {
-        await firestoreDeleteDoc(groupDocument(groupId));
-        console.log('Group deleted successfully');
+        // Fetch the group data
+        const groupSnapshot = await firestoreGetDoc(groupDocument(groupId));
+
+        if (groupSnapshot.exists()) {
+            const groupData = groupSnapshot.data();
+            const groupMembers = groupData.members || [];
+
+            // Delete the group document
+            await firestoreDeleteDoc(groupDocument(groupId));
+
+            console.log('Group deleted successfully');
+
+            // Now, remove the groupId from the 'groups' array of all group members
+            for (const memberId of groupMembers) {
+                const userDocRef = userDocument(memberId);
+                const userSnapshot = await firestoreGetDoc(userDocRef);
+
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.data();
+
+                    if (userData && Array.isArray(userData.groups)) {
+                        // Remove the groupId from the 'groups' array
+                        userData.groups = userData.groups.filter((group) => group !== groupId);
+
+                        // Update the user document with the modified 'groups' array
+                        await firestoreUpdateDoc(userDocRef, {groups: userData.groups});
+                    }
+                }
+            }
+
+            console.log(`Removed the group (${groupId}) from the users' 'groups' arrays.`);
+        } else {
+            console.log('Group not found');
+        }
     } catch (error) {
         console.error('Error deleting group:', error);
     }
@@ -305,7 +337,6 @@ const addUserToGroup = async (groupId, userEmail) => {
 
                 // Create a debt for the user within the group
                 const sharedDebtAmount = groupData.debtAmount;
-                const divisionMethod = groupData.divisionMethod;
                 const newDebtAmountPerMember = sharedDebtAmount / groupData.members.length;
                 const description = "Shared Debt Distribution";
 
@@ -332,16 +363,58 @@ const addUserToGroup = async (groupId, userEmail) => {
 
                         // Update the user document with the modified groups array
                         await firestoreUpdateDoc(userDocRef, {groups: userData.groups});
-
-                        console.log('User added to the group and updated successfully');
                     }
                 }
+
+                // Update debts for all members in the group
+                const updatedDebtAmountPerMember = sharedDebtAmount / groupData.members.length;
+                await updateDebtsInGroup(groupId, updatedDebtAmountPerMember);
+
+                console.log('User added to the group and updated successfully');
             }
         } else {
             console.log('Group not found');
         }
     } catch (error) {
         console.error('Error adding user to the group:', error);
+    }
+};
+
+const updateDebtsInGroup = async (groupId, updatedDebtAmountPerMember) => {
+    try {
+        // Get the group members
+        const groupDocRef = groupDocument(groupId);
+        const groupSnapshot = await firestoreGetDoc(groupDocRef);
+
+        if (groupSnapshot.exists()) {
+            const groupData = groupSnapshot.data();
+
+            if (groupData && Array.isArray(groupData.members)) {
+                // Iterate through each member in the group
+                for (const memberId of groupData.members) {
+                    if (memberId !== groupData.adminId) {
+                        const description = "Shared Debt Distribution";
+                        const debtDocRef = debtDocument(groupId, memberId);
+
+                        // Check if the debt document exists before updating it
+                        const debtSnapshot = await firestoreGetDoc(debtDocRef);
+
+                        if (debtSnapshot.exists()) {
+                            // Update the debt amount for each member (except the admin)
+                            await firestoreUpdateDoc(debtDocRef, {
+                                amount: updatedDebtAmountPerMember,
+                                description,
+                            });
+                        }
+                    }
+                }
+                console.log('Debts updated for all members in the group successfully');
+            }
+        } else {
+            console.log('Group not found');
+        }
+    } catch (error) {
+        console.error('Error updating debts in the group:', error);
     }
 };
 

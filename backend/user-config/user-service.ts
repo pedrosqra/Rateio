@@ -79,12 +79,10 @@ const generateUserId = () => {
 const login = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
-        const user = userCredential.user;
-
-        return true;
+        return userCredential.user;
     } catch (error) {
         console.log(error);
-        return false;
+        return error;
     }
 };
 
@@ -105,6 +103,7 @@ const signup = async (email, password, name, pix) => {
 
         const userDocumentData = {
             userId: user.uid,
+            groups: [],
             email: email,
             name: name,
             pix: pix,
@@ -112,7 +111,7 @@ const signup = async (email, password, name, pix) => {
 
         await firestoreSetDoc(userDocument(user.uid), userDocumentData);
 
-        return true;
+        return userDocumentData;
     } catch (error) {
         console.log(error);
         return false;
