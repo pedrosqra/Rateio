@@ -9,7 +9,7 @@ import {
     updateDoc as firestoreUpdateDoc
 } from 'firebase/firestore';
 import {Group} from "../interfaces/groups";
-import {userDocument} from '../user-config/user-service';
+import {getUserByEmail, userDocument} from '../user-config/user-service';
 import {Debt} from "../interfaces/debt";
 
 // Collections references
@@ -274,12 +274,19 @@ const deleteUserFromGroup = async (groupId: string, userId: string) => {
     }
 };
 
-
-const addUserToGroup = async (groupId, userId) => {
+const addUserToGroup = async (groupId, userEmail) => {
     try {
         // Check if the user is already a member of the group
         const groupDocRef = groupDocument(groupId);
         const groupSnapshot = await firestoreGetDoc(groupDocRef);
+
+        // Fetch the userId using userEmail
+        const userId = await getUserByEmail(userEmail);
+
+        if (!userId) {
+            console.log('User not found by email:', userEmail);
+            return;
+        }
 
         if (groupSnapshot.exists()) {
             const groupData = groupSnapshot.data();
@@ -350,6 +357,7 @@ const getPaidDebtsForUser = async (userId) => {
     const allDebts = snapshot.docs.map((doc) => doc.data());
     return allDebts.filter((debt) => debt.debtorId === userId && debt.isPaid == true);
 };
+
 
 export {
     createGroupWithSharedDebt,
