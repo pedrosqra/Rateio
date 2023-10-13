@@ -80,9 +80,6 @@ const login = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
         const user = userCredential.user;
-        // const userData = await readUser(user.uid);
-        // if (userData) {
-        // }
 
         return true;
     } catch (error) {
@@ -90,6 +87,16 @@ const login = async (email, password) => {
         return false;
     }
 };
+
+const signOut = async () => {
+    try {
+        await firebaseAuth.signOut();
+        return true; // Sign-out was successful
+    } catch (error) {
+        console.error('Error signing out:', error);
+        return false; // Sign-out failed
+    }
+}
 
 const signup = async (email, password, name, pix) => {
     try {
@@ -139,6 +146,27 @@ const getUserData = async (userId) => {
     }
 };
 
+const getUserByEmail = async (userEmail) => {
+    try {
+        // Assuming you have a way to query users by email in your database
+        const usersRef = collection(db, 'users');
+        const emailQuery = query(usersRef, where('email', '==', userEmail));
+        const querySnapshot = await getDocs(emailQuery);
+
+        if (!querySnapshot.empty) {
+            // Assuming there's only one user with a given email
+            const userDoc = querySnapshot.docs[0];
+            return userDoc.id; // Return the userId
+        } else {
+            console.log('User not found by email:', userEmail);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error getting user by email:', error);
+        return null;
+    }
+};
+
 export {
     deleteUser,
     readUser,
@@ -147,5 +175,7 @@ export {
     signup,
     getUsers,
     userDocument,
-    getUserData
+    getUserData,
+    getUserByEmail,
+    signOut,
 };

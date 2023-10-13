@@ -5,12 +5,11 @@ import styles from '../login/LoginStyles';
 import {onAuthStateChanged} from 'firebase/auth';
 import {firebaseAuth} from '../../../backend/firebase/firebase';
 import {useUserStore} from '../../store/user';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Login = () => {
     const {setPersonalData} = useUserStore();
-
     const navigation = useNavigation();
 
     const [email, setEmail] = useState('');
@@ -23,6 +22,16 @@ const Login = () => {
             const response = await login(email, password);
             if (!response) {
                 alert('Ocorreu um erro ao fazer login. Verifique email e senha.');
+            } else {
+                setPersonalData(response.user);
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [
+                            {name: 'Home', params: {uid: response.user.uid}},
+                        ],
+                    })
+                );
             }
         } finally {
             setLoading(false);
@@ -37,7 +46,14 @@ const Login = () => {
         onAuthStateChanged(firebaseAuth, (user) => {
             if (user) {
                 setPersonalData(user);
-                navigation.navigate('Home', {uid: user.uid});
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [
+                            {name: 'Home', params: {uid: user.uid}},
+                        ],
+                    })
+                );
             }
         });
     }, []);

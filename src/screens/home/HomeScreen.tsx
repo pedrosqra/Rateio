@@ -1,15 +1,18 @@
 import React, {useEffect, useRef, useState} from 'react';
+import {readUser, signOut} from '../../../backend/user-config/user-service';
 import {Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
-
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as Notifications from 'expo-notifications';
-import {DocumentData} from 'firebase/firestore';
-import {useNavigation} from '@react-navigation/native';
-
-import {registerForPushNotificationsAsync,} from '../../resources/notifications';
-
-import {readUser} from '../../../backend/user-config/user-service';
 import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+import {DocumentData} from 'firebase/firestore';
+import {CommonActions, useNavigation} from '@react-navigation/native';
+import {registerForPushNotificationsAsync,} from '../../resources/notifications';
+import firebase from 'firebase/compat';
+import * as Notifications from 'expo-notifications';
+
+type RootStackParamList = {
+    Home: undefined;
+    GroupScreen: { groupId: string };
+};
 
 import styles from './HomeScreenStyles';
 import {Props} from './types';
@@ -141,6 +144,20 @@ const HomeScreen = ({
         };
     }, []);
 
+    const handleLogout = async () => {
+        try {
+            await signOut(); // Sign the user out
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{name: 'Login'}], // Navigate to the Login screen
+                })
+            );
+        } catch (error) {
+            console.error('Error logging out:', error);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -165,6 +182,7 @@ const HomeScreen = ({
                     placeholder={'Pesquisar'}
                     onChangeText={(text) => setSearchText(text)}
                 />
+
             </View>
             <View style={styles.groupListTitleView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
@@ -195,6 +213,13 @@ const HomeScreen = ({
                     <Text style={styles.addText}>Adicionar novo grupo</Text>
                 </TouchableOpacity>
             </View>
+            {/*<TouchableOpacity onPress={handleLogout}>*/}
+            {/*    <Text>Logout</Text>*/}
+            {/*</TouchableOpacity>*/}
+            {/*<Button*/}
+            {/*    title="Press to schedule a notification"*/}
+            {/*    onPress={() => schedulePushNotification()}*/}
+            {/*/>*/}
         </View>
     );
 };
