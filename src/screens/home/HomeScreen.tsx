@@ -95,28 +95,25 @@ const HomeScreen = ({
         }
     };
 
+    const fetchUserDebts = async () => {
+        try {
+            const userDebts = await getDebtsForUser(uid);
+            const debtMap = new Map();
+
+            userDebts.forEach((debt) => {
+                debtMap.set(debt.groupId, debt.amount);
+            });
+
+            setUserDebts(debtMap);
+        } catch (error) {
+            console.error('Error fetching user debts:', error);
+        }
+    };
+
     useEffect(() => {
-        // Quando o componente montar, carregue o nome do usuário
+        fetchUserDebts();
         fetchUserName();
         fetchUserDataAndGroups();
-
-        const fetchUserDebts = async () => {
-            try {
-                const userDebts = await getDebtsForUser(uid)
-
-                const groupedDebts = {};
-
-                userDebts.forEach((debt) => {
-                    groupedDebts[debt.groupId] = debt.amount;
-                });
-                setUserDebts(groupedDebts);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        // Fetch user data and debts
-        fetchUserDebts();
 
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
@@ -196,6 +193,11 @@ const HomeScreen = ({
                             </View>
                             <View style={styles.groupInfo}>
                                 <Text style={styles.groupName}>{group.name}</Text>
+                                {userDebts && (
+                                    <Text style={styles.groupDescription}>
+                                        Sua parte: R${userDebts.get(group.groupId)}
+                                    </Text>
+                                )}
                                 <Text style={styles.groupDescription}>
                                     {group.debtDescription}
                                 </Text>

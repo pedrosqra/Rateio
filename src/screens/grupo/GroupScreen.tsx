@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Image, Modal, Pressable, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import {AntDesign} from '@expo/vector-icons';
+import {AntDesign, MaterialIcons} from '@expo/vector-icons';
 import {DocumentData} from 'firebase/firestore';
 
 import {addUserToGroup, deleteGroup, getGroupById, updateGroup} from '../../../backend/group-config/group-service';
@@ -172,13 +172,21 @@ const GroupScreen = ({navigation, route}: Props) => {
                             </View>
                         </Pressable>
                         <Pressable
-                            onPress={() => console.log('HISTORIC PRESS')}
                             style={styles.inline}
                         >
                             <Text style={styles.textBold}>Pix</Text>
                             <View style={styles.innerGroup}>
                                 <Text style={styles.text}>{groupData?.adminPix}</Text>
                                 <AntDesign name="key" size={12}/>
+                            </View>
+                        </Pressable>
+                        <Pressable
+                            style={styles.inline}
+                        >
+                            <Text style={styles.textBold}>Valor Total</Text>
+                            <View style={styles.innerGroup}>
+                                <Text style={styles.text}>R$: {groupData?.debtAmount}</Text>
+                                <MaterialIcons name="attach-money" size={12}/>
                             </View>
                         </Pressable>
                     </View>
