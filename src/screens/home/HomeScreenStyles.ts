@@ -55,14 +55,18 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         color: 'white',
 
-      },
-
+    },
+    loadingContainerStyle: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     searchInput: {
         fontSize: 16,
         marginLeft: 15,
         width: '100%',
         color: 'black',
-      },
+    },
 
     groupListTitleView: {
         backgroundColor: '#373B3F',

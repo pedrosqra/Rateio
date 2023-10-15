@@ -1,37 +1,17 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {readUser, signOut} from '../../../backend/user-config/user-service';
-import {Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
-import {DocumentData} from 'firebase/firestore';
-import {CommonActions, useNavigation} from '@react-navigation/native';
-import {registerForPushNotificationsAsync,} from '../../resources/notifications';
 import * as Notifications from 'expo-notifications';
+import {CommonActions, useNavigation} from '@react-navigation/native';
+import {DocumentData} from 'firebase/firestore';
+
+import {readUser, signOut} from '../../../backend/user-config/user-service';
+import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+
+import {registerForPushNotificationsAsync} from '../../resources/notifications';
+
 import styles from './HomeScreenStyles';
 import {Props} from './types';
-
-type RootStackParamList = {
-    Home: undefined;
-    GroupScreen: { groupId: string };
-};
-
-const SearchBar = ({
-                       placeholder,
-                       onChangeText
-                   }: {
-    placeholder: string,
-    onChangeText: (text: string) => void
-}) => {
-    return (
-        <View style={styles.searchBarContainer}>
-            <TextInput
-                style={styles.searchInput}
-                placeholder={placeholder}
-                onChangeText={onChangeText}
-            />
-        </View>
-    );
-};
 
 const HomeScreen = ({
                         route
@@ -46,7 +26,8 @@ const HomeScreen = ({
     const responseListener = useRef<any>();
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true); // Add a loading state
+
     const filteredGroups = groups.filter(group =>
         group.name.toLowerCase().includes(searchText.toLowerCase())
     );
@@ -57,7 +38,6 @@ const HomeScreen = ({
     };
 
     const navigateToGroup = (groupId: string) => {
-        console.log('Navegar para o grupo: ', groupId);
         navigation.navigate('GroupScreen', {groupId});
     };
 
@@ -79,19 +59,8 @@ const HomeScreen = ({
             setGroups(userGroupsData);
         } catch (error) {
             console.error('Error fetching user data and groups:', error);
-        }
-    };
-
-    // Função para obter e definir o nome do usuário
-    const fetchUserName = async () => {
-        try {
-            const userData = await readUser(uid);
-
-            if (userData && userData.name) {
-                setUserName(userData.name);
-            }
-        } catch (error) {
-            console.error('Error fetching user data:', error);
+        } finally {
+            setIsLoading(false); // Ensure loading state is set to false
         }
     };
 
@@ -111,13 +80,14 @@ const HomeScreen = ({
     };
 
     useEffect(() => {
-        fetchUserDebts();
-        fetchUserName();
-        fetchUserDataAndGroups();
+        // Fetch user debts and groups
+        Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
 
+        // Register for push notifications
         registerForPushNotificationsAsync()
             .then((token) => setExpoPushToken(token))
             .catch(() => {
+                console.error('Error registering for push notifications');
             });
 
         notificationListener.current = Notifications.addNotificationReceivedListener(
@@ -158,17 +128,22 @@ const HomeScreen = ({
                 <View style={styles.profileContent}>
                     <Image
                         source={{
-                            uri:
-                                'https://picsum.photos/300/310',
+                            uri: 'https://picsum.photos/300/310',
                         }}
                         style={styles.profileImage}
                     />
-                    <Text style={styles.profileName}>{userName}</Text>
+                    {isLoading ? (
+                        <View style={styles.loadingContainerStyle}>
+                            <ActivityIndicator size="large" color="#1CC29F"/>
+                        </View>
+                    ) : (
+                        <Text style={styles.profileName}>{userName}</Text>)}
                 </View>
                 <View style={styles.notificationContent}>
                     <Ionicons name="notifications-outline" size={28} color="white"/>
                 </View>
             </View>
+
             <View style={styles.searchBarContainer}>
                 <Ionicons name="search-outline" size={24} color="black"/>
                 <TextInput
@@ -176,36 +151,44 @@ const HomeScreen = ({
                     placeholder={'Pesquisar'}
                     onChangeText={(text) => setSearchText(text)}
                 />
-
             </View>
+
             <View style={styles.groupListTitleView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
             </View>
-            <ScrollView style={styles.list}>
-                {filteredGroups.map((group) => (
-                    <TouchableOpacity
-                        key={group.groupId}
-                        onPress={() => navigateToGroup(group.groupId)}
-                    >
-                        <View style={styles.listItem} key={group.groupId}>
-                            <View style={styles.groupImageContainer}>
-                                <Ionicons name="people-outline" size={28} color="white"/>
-                            </View>
-                            <View style={styles.groupInfo}>
-                                <Text style={styles.groupName}>{group.name}</Text>
-                                {userDebts && (
+
+            {isLoading ? (
+                <View style={styles.loadingContainerStyle}>
+                    <ActivityIndicator size="large" color="#1CC29F"/>
+                </View>
+            ) : (
+                <ScrollView style={styles.list}>
+                    {filteredGroups.map((group) => (
+                        <TouchableOpacity
+                            key={group.groupId}
+                            onPress={() => navigateToGroup(group.groupId)}
+                        >
+                            <View style={styles.listItem} key={group.groupId}>
+                                <View style={styles.groupImageContainer}>
+                                    <Ionicons name="people-outline" size={28} color="white"/>
+                                </View>
+                                <View style={styles.groupInfo}>
+                                    <Text style={styles.groupName}>{group.name}</Text>
+                                    {userDebts && (
+                                        <Text style={styles.groupDescription}>
+                                            Sua parte: R${userDebts.get(group.groupId)}
+                                        </Text>
+                                    )}
                                     <Text style={styles.groupDescription}>
-                                        Sua parte: R${userDebts.get(group.groupId)}
+                                        {group.debtDescription}
                                     </Text>
-                                )}
-                                <Text style={styles.groupDescription}>
-                                    {group.debtDescription}
-                                </Text>
+                                </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            )}
+
             <View style={styles.addGroupButtonView}>
                 <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
                     <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
