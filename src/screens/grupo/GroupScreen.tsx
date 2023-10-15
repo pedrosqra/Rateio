@@ -1,9 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Image, Modal, Pressable, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import {AntDesign, MaterialIcons} from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
+
+import {AntDesign, Feather} from '@expo/vector-icons';
 import {DocumentData} from 'firebase/firestore';
 
-import {addUserToGroup, deleteGroup, getGroupById, updateGroup} from '../../../backend/group-config/group-service';
+import {
+    addUserToGroup,
+    deleteGroup,
+    deleteUserFromGroup,
+    getGroupById,
+    getGroupDebts,
+    setDebtAsPaid,
+    updateGroup
+} from '../../../backend/group-config/group-service';
 import {styles} from './GroupScreenStyles';
 import {Props} from './types';
 import {readUser} from '../../../backend/user-config/user-service';
@@ -45,11 +55,32 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [participantNames, setParticipantNames] = useState<string[]>([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [userEmail, setUserEmail] = useState('');
-
+    const [debts, setDebts] = useState<Map<string, DocumentData>>(new Map());
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
 
     useEffect(() => {
+
+        const fetchDebts = async () => {
+            try {
+                const debtData = await getGroupDebts(groupId);
+
+                // Create a map with userId as the key and debt data as the value
+                const debtMap = new Map<string, DocumentData>();
+
+                debtData.forEach((debt) => {
+                    debtMap.set(debt.debtorId, debt);
+                });
+
+                setDebts(debtMap);
+                console.log(debtMap)
+            } catch (error) {
+                console.error('Error fetching group debts:', error);
+            }
+        };
+
+        fetchDebts();
+
         const fetchData = async () => {
             setIsLoading(true);
 
@@ -139,6 +170,40 @@ const GroupScreen = ({navigation, route}: Props) => {
         setShowConfirmDialog(false);
     };
 
+    const handleMarkDebtPaid = async (userId: string) => {
+        // Check if the user's debt is marked as paid or unpaid
+        if (debts) {
+            const userDebt = debts.get(userId);
+            if (userDebt) {
+                // Toggle the isPaid property
+                const isPaid = !userDebt.isPaid;
+
+                try {
+                    // Update the debt as paid or unpaid
+                    await setDebtAsPaid(userDebt.groupId, userDebt.debtorId, isPaid);
+                    // Update the debt in the local state
+                    const updatedDebt = {...userDebt, isPaid};
+                    debts.set(userId, updatedDebt);
+                    setDebts(new Map(debts));
+                } catch (error) {
+                    console.error('Error updating debt payment:', error);
+                }
+            }
+        }
+    };
+
+    const handleRemoveMember = async (userId: string) => {
+        try {
+            await deleteUserFromGroup(groupId, userId);
+        } catch (error) {
+            console.error('Error removing user:', error);
+        }
+    }
+
+    const copyToClipboard = async (text) => {
+        await Clipboard.setStringAsync(text);
+    };
+
     return (
         <View style={styles.container}>
             <AntDesign
@@ -156,7 +221,7 @@ const GroupScreen = ({navigation, route}: Props) => {
                 <>
                     <Image
                         source={{
-                            uri: 'https://picsum.photos/200/320',
+                            uri: 'https://picsum.photos/500/500',
                         }}
                         style={styles.image}
                     />
@@ -168,17 +233,18 @@ const GroupScreen = ({navigation, route}: Props) => {
                             <Text style={styles.textBold}>Nome do grupo</Text>
                             <View style={styles.innerGroup}>
                                 <Text style={styles.text}>{groupData?.name}</Text>
-                                <AntDesign name="right" size={12}/>
                             </View>
                         </Pressable>
                         <Pressable
                             style={styles.inline}
                         >
                             <Text style={styles.textBold}>Pix</Text>
-                            <View style={styles.innerGroup}>
-                                <Text style={styles.text}>{groupData?.adminPix}</Text>
-                                <AntDesign name="key" size={12}/>
-                            </View>
+                            <TouchableOpacity onPress={() => copyToClipboard(groupData?.adminPix)}>
+                                <View style={styles.innerGroup}>
+                                    <Feather style={styles.copy} name="copy" size={16}/>
+                                    <Text style={styles.text}>{groupData?.adminPix}</Text>
+                                </View>
+                            </TouchableOpacity>
                         </Pressable>
                         <Pressable
                             style={styles.inline}
@@ -186,7 +252,6 @@ const GroupScreen = ({navigation, route}: Props) => {
                             <Text style={styles.textBold}>Valor Total</Text>
                             <View style={styles.innerGroup}>
                                 <Text style={styles.text}>R$: {groupData?.debtAmount}</Text>
-                                <MaterialIcons name="attach-money" size={12}/>
                             </View>
                         </Pressable>
                     </View>
@@ -199,17 +264,43 @@ const GroupScreen = ({navigation, route}: Props) => {
                             <AntDesign name="right" size={12}/>
                         </Pressable>
                         {groupData?.members &&
-                            groupData.members.map((_, index: number) => (
+                            groupData.members.map((participantId: string, index: number) => (
                                 <View key={index} style={styles.participantInfo}>
-                                    <Image
-                                        source={{
-                                            uri: 'https://picsum.photos/200/310',
-                                        }}
-                                        style={styles.participantImage}
-                                    />
-                                    <Text style={styles.participantName}>
-                                        {participantNames[index]}
-                                    </Text>
+                                    <View style={styles.participantStyle}>
+                                        <Image
+                                            source={{
+                                                uri: 'https://picsum.photos/200/310',
+                                            }}
+                                            style={styles.participantImage}
+                                        />
+                                        <Text style={styles.participantName}>{participantNames[index]}</Text>
+                                    </View>
+                                    <View style={styles.actionButtons}>
+                                        {debts && debts.has(participantId) && (
+                                            <TouchableOpacity
+                                                style={
+                                                    debts.get(participantId)?.isPaid
+                                                        ? styles.markDebtButtonPaid
+                                                        : styles.markDebtButtonUnpaid
+                                                }
+                                                onPress={() => handleMarkDebtPaid(participantId)}
+                                            >
+                                                <Text style={
+                                                    debts.get(participantId)?.isPaid
+                                                        ? styles.markDebtButtonTextPaid
+                                                        : styles.markDebtButtonTextUnpaid
+                                                }>
+                                                    {debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        )}
+                                        <TouchableOpacity
+                                            style={styles.removeButton}
+                                            onPress={() => handleRemoveMember(participantId)}
+                                        >
+                                            <Icon name="trash" size={20} color="white"/>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             ))}
                     </View>

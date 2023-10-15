@@ -46,7 +46,7 @@ const HomeScreen = ({
     const responseListener = useRef<any>();
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
-
+    const [isLoading, setIsLoading] = useState(true);
     const filteredGroups = groups.filter(group =>
         group.name.toLowerCase().includes(searchText.toLowerCase())
     );

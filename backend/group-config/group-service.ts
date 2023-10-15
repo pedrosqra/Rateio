@@ -138,15 +138,15 @@ const addDebt = async (debtData: Debt) => {
 };
 
 
-const setDebtAsPaid = async (groupId, debtorId, paidDate) => {
+const setDebtAsPaid = async (groupId, debtorId) => {
     try {
         const debtDocRef = debtDocument(groupId, debtorId);
         const debtSnapshot = await firestoreGetDoc(debtDocRef);
 
         if (debtSnapshot.exists()) {
             await firestoreUpdateDoc(debtDocRef, {
-                isPaid: true, // Set the debt as paid
-                datePaid: paidDate, // Set the date when the debt was paid
+                isPaid: !debtSnapshot.data().isPaid, // Set the debt as paid
+                datePaid: new Date(), // Set the date when the debt was paid
             });
 
             console.log('Debt marked as paid successfully');
@@ -449,6 +449,41 @@ const getPaidDebtsForUser = async (userId) => {
     return allDebts.filter((debt) => debt.debtorId === userId && debt.isPaid == true);
 };
 
+const getGroupDebts = async (groupId) => {
+    try {
+        const groupDocRef = groupDocument(groupId);
+        const groupSnapshot = await firestoreGetDoc(groupDocRef);
+
+        if (groupSnapshot.exists()) {
+            const groupData = groupSnapshot.data();
+            const groupDebts = [];
+
+            if (groupData && Array.isArray(groupData.members)) {
+                // Iterate through each member in the group and fetch their debts
+                for (const memberId of groupData.members) {
+                    const debtDocRef = debtDocument(groupId, memberId);
+                    const debtSnapshot = await firestoreGetDoc(debtDocRef);
+
+                    if (debtSnapshot.exists()) {
+                        groupDebts.push(debtSnapshot.data());
+                    }
+                }
+
+                return groupDebts;
+            } else {
+                console.log('Group has no members');
+                return [];
+            }
+        } else {
+            console.log('Group not found');
+            return [];
+        }
+    } catch (error) {
+        console.error('Error getting group debts:', error);
+        return [];
+    }
+};
+
 
 export {
     createGroupWithSharedDebt,
@@ -460,5 +495,7 @@ export {
     deleteUserFromGroup,
     addUserToGroup,
     getDebtsForUser,
-    getPaidDebtsForUser
+    getPaidDebtsForUser,
+    setDebtAsPaid,
+    getGroupDebts
 };
