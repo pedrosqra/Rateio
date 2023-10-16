@@ -10,7 +10,6 @@ import {
     setDoc as firestoreSetDoc,
     where
 } from 'firebase/firestore';
-import { User } from '../interfaces/user'
 
 const usersCollection = collection(db, 'users');
 
