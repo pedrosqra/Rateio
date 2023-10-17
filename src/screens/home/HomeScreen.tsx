@@ -1,14 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import * as Notifications from 'expo-notifications';
-import {CommonActions, useNavigation} from '@react-navigation/native';
+import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {DocumentData} from 'firebase/firestore';
-
 import {readUser, signOut} from '../../../backend/user-config/user-service';
 import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
-
-import {registerForPushNotificationsAsync} from '../../resources/notifications';
 
 import styles from './HomeScreenStyles';
 import {Props} from './types';
@@ -27,15 +23,22 @@ const HomeScreen = ({
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
     const [isLoading, setIsLoading] = useState(true); // Add a loading state
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const refreshData = () => {
+        setRefreshKey(prevKey => prevKey + 1);
+    };
+
 
     const filteredGroups = groups.filter(group =>
         group.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const onPressAdicionarGrupo = () => {
-        navigation.navigate('CreateGroup', {uid});
+        navigation.navigate('CreateGroup', {uid, refreshData});
         console.log('Criando grupo');
     };
+
 
     const navigateToGroup = (groupId: string) => {
         navigation.navigate('GroupScreen', {groupId});
@@ -79,34 +82,37 @@ const HomeScreen = ({
         }
     };
 
-    useEffect(() => {
-        // Fetch user debts and groups
-        Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
+    useFocusEffect(
+        React.useCallback(() => {
+            // Fetch user debts and groups
+            Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
+            console.log('leitura HOME')
 
-        // Register for push notifications
-        registerForPushNotificationsAsync()
-            .then((token) => setExpoPushToken(token))
-            .catch(() => {
-                console.error('Error registering for push notifications');
-            });
-
-        notificationListener.current = Notifications.addNotificationReceivedListener(
-            (notification) => {
-                setNotification(notification);
-            }
-        );
-
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(
-            (response) => {
-                console.log(response);
-            }
-        );
-
-        return () => {
-            Notifications.removeNotificationSubscription(notificationListener.current);
-            Notifications.removeNotificationSubscription(responseListener.current);
-        };
-    }, [route.params, groups]);
+            // Register for push notifications
+            // registerForPushNotificationsAsync()
+            //     .then((token) => setExpoPushToken(token))
+            //     .catch(() => {
+            //         console.error('Error registering for push notifications');
+            //     });
+            //
+            // notificationListener.current = Notifications.addNotificationReceivedListener(
+            //     (notification) => {
+            //         setNotification(notification);
+            //     }
+            // );
+            //
+            // responseListener.current = Notifications.addNotificationResponseReceivedListener(
+            //     (response) => {
+            //         console.log(response);
+            //     }
+            // );
+            //
+            // return () => {
+            //     Notifications.removeNotificationSubscription(notificationListener.current);
+            //     Notifications.removeNotificationSubscription(responseListener.current);
+            // };
+        }, [route.params, refreshKey]) // Remova groups daqui
+    );
 
     const handleLogout = async () => {
         try {

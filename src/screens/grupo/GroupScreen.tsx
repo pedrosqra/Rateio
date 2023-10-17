@@ -103,6 +103,9 @@ const GroupScreen = ({navigation, route}: Props) => {
         };
 
         fetchData();
+
+        console.log('leitura GRUPO')
+
     }, [groupId]);
 
     const toggleModal = () => {
