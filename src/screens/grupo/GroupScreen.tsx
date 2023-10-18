@@ -66,7 +66,6 @@ const GroupScreen = ({navigation, route}: Props) => {
             try {
                 const debtData = await getGroupDebts(groupId);
 
-                // Create a map with userId as the key and debt data as the value
                 const debtMap = new Map<string, DocumentData>();
 
                 debtData.forEach((debt) => {
@@ -174,7 +173,7 @@ const GroupScreen = ({navigation, route}: Props) => {
             .then(() => {
                 console.log("Group deleted");
                 setShowConfirmDialog(false);
-                navigation.goBack(); // Navigate back to the previous screen
+                navigation.goBack();
             });
     };
 
@@ -183,18 +182,14 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     const handleMarkDebtPaid = async (userId: string) => {
-        // Check if the user's debt is marked as paid or unpaid
         if (debts) {
             const userDebt = debts.get(userId);
             if (userDebt) {
-                // Toggle the isPaid property
                 const isPaid = !userDebt.isPaid;
 
 
                 try {
-                    // Update the debt as paid or unpaid
                     await setDebtAsPaid(userDebt.groupId, userDebt.debtorId, isPaid);
-                    // Update the debt in the local state
                     const updatedDebt = {...userDebt, isPaid};
                     debts.set(userId, updatedDebt);
                     setDebts(new Map(debts));
