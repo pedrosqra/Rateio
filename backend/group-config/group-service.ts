@@ -46,7 +46,7 @@ const createGroupWithSharedDebt = async (
     try {
         // Step 1: Create the group
         const newGroupId = generateGroupId();
-        const currentDate = new Date(); // Get the current date
+        const currentDate = new Date();
 
         const groupData = {
             groupId: newGroupId,
@@ -54,15 +54,45 @@ const createGroupWithSharedDebt = async (
             adminPix,
             debtAmount: sharedDebtAmount,
             debtDescription: "Shared Debt",
-            debtFinalDate: currentDate, // Set the final date as the current date
-            dateCreated: currentDate, // Set the dateCreated as the current date
+            debtFinalDate: currentDate,
+            dateCreated: currentDate,
             name: groupName,
-            members: [adminId, ...members],
+            members: [adminId, ...members], // Include admin in members
         };
 
         await firestoreSetDoc(groupDocument(newGroupId), groupData);
 
-        // Update the user document with the group ID
+        // Step 2: Calculate debt distribution based on divisionMethod
+        const debtDistribution = calculateDebtDistribution(
+            adminId,
+            members,
+            sharedDebtAmount,
+            divisionMethod
+        );
+
+        // Step 3: Add individual debts for each member, including the admin
+        for (const memberId in debtDistribution) {
+            const amount = debtDistribution[memberId];
+            const description = "Shared Debt Distribution";
+            const debtData = {
+                groupId: newGroupId,
+                debtorId: memberId,
+                amount,
+                description,
+            };
+            await addDebt(debtData);
+        }
+
+        // Add the admin's debt separately
+        const adminDebtData = {
+            groupId: newGroupId,
+            debtorId: adminId,
+            amount: sharedDebtAmount, // Admin's full share of the debt
+            description: "Shared Debt Distribution",
+        };
+        await addDebt(adminDebtData);
+
+        // Step 4: Update the user document with the group ID
         const userDocRef = userDocument(adminId);
 
         const userSnapshot = await firestoreGetDoc(userDocRef);
@@ -79,27 +109,6 @@ const createGroupWithSharedDebt = async (
             }
         }
 
-        // Step 2: Calculate debt distribution based on divisionMethod
-        const debtDistribution = calculateDebtDistribution(
-            adminId,
-            members,
-            sharedDebtAmount,
-            divisionMethod
-        );
-
-        // Step 3: Add individual debts for each member
-        for (const memberId in debtDistribution) {
-            const amount = debtDistribution[memberId];
-            const description = "Shared Debt Distribution";
-            const debtData = {
-                groupId: newGroupId,
-                debtorId: memberId,
-                amount,
-                description,
-            };
-            await addDebt(debtData);
-        }
-
         console.log("Group created with shared debt successfully");
         return newGroupId;
     } catch (error) {
@@ -107,6 +116,7 @@ const createGroupWithSharedDebt = async (
         return null;
     }
 };
+
 
 // Function to add an individual debt to the 'debts' collection
 const addDebt = async (debtData: Debt) => {
@@ -128,15 +138,15 @@ const addDebt = async (debtData: Debt) => {
 };
 
 
-const setDebtAsPaid = async (groupId, debtorId, paidDate) => {
+const setDebtAsPaid = async (groupId, debtorId) => {
     try {
         const debtDocRef = debtDocument(groupId, debtorId);
         const debtSnapshot = await firestoreGetDoc(debtDocRef);
 
         if (debtSnapshot.exists()) {
             await firestoreUpdateDoc(debtDocRef, {
-                isPaid: true, // Set the debt as paid
-                datePaid: paidDate, // Set the date when the debt was paid
+                isPaid: !debtSnapshot.data().isPaid, // Set the debt as paid
+                datePaid: new Date(), // Set the date when the debt was paid
             });
 
             console.log('Debt marked as paid successfully');
@@ -366,9 +376,17 @@ const addUserToGroup = async (groupId, userEmail) => {
                     }
                 }
 
-                // Update debts for all members in the group
+                // Calculate the updated debt for the admin
                 const updatedDebtAmountPerMember = sharedDebtAmount / groupData.members.length;
-                await updateDebtsInGroup(groupId, updatedDebtAmountPerMember);
+                const adminDebtData = {
+                    groupId,
+                    debtorId: groupData.adminId,
+                    amount: sharedDebtAmount - updatedDebtAmountPerMember,
+                    description,
+                };
+
+                // Update the admin's debt in the 'debts' collection
+                await addDebt(adminDebtData);
 
                 console.log('User added to the group and updated successfully');
             }
@@ -431,6 +449,41 @@ const getPaidDebtsForUser = async (userId) => {
     return allDebts.filter((debt) => debt.debtorId === userId && debt.isPaid == true);
 };
 
+const getGroupDebts = async (groupId) => {
+    try {
+        const groupDocRef = groupDocument(groupId);
+        const groupSnapshot = await firestoreGetDoc(groupDocRef);
+
+        if (groupSnapshot.exists()) {
+            const groupData = groupSnapshot.data();
+            const groupDebts = [];
+
+            if (groupData && Array.isArray(groupData.members)) {
+                // Iterate through each member in the group and fetch their debts
+                for (const memberId of groupData.members) {
+                    const debtDocRef = debtDocument(groupId, memberId);
+                    const debtSnapshot = await firestoreGetDoc(debtDocRef);
+
+                    if (debtSnapshot.exists()) {
+                        groupDebts.push(debtSnapshot.data());
+                    }
+                }
+
+                return groupDebts;
+            } else {
+                console.log('Group has no members');
+                return [];
+            }
+        } else {
+            console.log('Group not found');
+            return [];
+        }
+    } catch (error) {
+        console.error('Error getting group debts:', error);
+        return [];
+    }
+};
+
 
 export {
     createGroupWithSharedDebt,
@@ -442,5 +495,7 @@ export {
     deleteUserFromGroup,
     addUserToGroup,
     getDebtsForUser,
-    getPaidDebtsForUser
+    getPaidDebtsForUser,
+    setDebtAsPaid,
+    getGroupDebts
 };

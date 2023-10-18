@@ -90,9 +90,10 @@ export const styles = StyleSheet.create({
     },
     image: {
         backgroundColor: '#fff',
-        width: 96,
-        height: 96,
+        width: 200,
+        height: 200,
         marginBottom: 8,
+        borderRadius: 8,
         borderWidth: 2, // Border width in pixels
         borderColor: '#1CC29F', // Border color
     },
@@ -124,8 +125,17 @@ export const styles = StyleSheet.create({
         color: "#333",
         marginRight: 5
     },
+    copy: {
+        margin: 10,
+    },
     participantInfo: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    participantStyle: {
+        flexDirection: "row",
+        justifyContent: 'flex-start',
         alignItems: 'center'
     },
     participantImage: {
@@ -138,6 +148,9 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: "#333",
         marginLeft: 15
+    },
+    actionButtons: {
+        flexDirection: "row",
     },
     button: {
         width: "100%",
@@ -157,5 +170,39 @@ export const styles = StyleSheet.create({
         fontSize: 16,
         color: '#1CC29F', // Cor do texto verde
         fontWeight: 'bold'
-    }
+    },
+    markDebtButtonPaid: {
+        backgroundColor: 'green',
+        borderRadius: 8,
+        padding: 6,
+        marginLeft: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    markDebtButtonTextPaid: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    markDebtButtonUnpaid: {
+        backgroundColor: 'red',
+        borderRadius: 8,
+        padding: 6,
+        marginLeft: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    markDebtButtonTextUnpaid: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    removeButton: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 10, // Adjust the margin as needed
+    },
 });

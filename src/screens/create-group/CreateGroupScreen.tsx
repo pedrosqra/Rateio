@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
 
@@ -15,8 +15,11 @@ function CreateGroupScreen({route}) {
     const [pix, setPix] = useState('');
     const [total, setTotal] = useState('');
     const [participants, setParticipants] = useState([]);
-    const [users, setUsers] = useState([]); // Lista de todos os usuários
+    const [users, setUsers] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
+
+    // New state variable to track group creation in progress
+    const [creatingGroup, setCreatingGroup] = useState(false);
 
     useEffect(() => {
         loadUsers();
@@ -24,33 +27,24 @@ function CreateGroupScreen({route}) {
 
     const loadUsers = async () => {
         const userList = await getUsers();
-        const userListWithoutAdmin = userList.filter(user => user.userId !== adminUserId);
+        const userListWithoutAdmin = userList.filter((user) => user.userId !== adminUserId);
         setUsers(userListWithoutAdmin);
     };
 
-    // Função para abrir ou fechar o modal
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
+    const createGroupThenBackHome = async () => {
+        // Set creatingGroup to true to show the ActivityIndicator
+        setCreatingGroup(true);
 
-    // // Função para adicionar um participante ao grupo
-    // const addParticipant = (userId) => {
-    //   if (!participants.includes(userId)) {
-    //     setParticipants([...participants, userId]); // Se o ID não estiver na lista, adicione-o
-    //   } else {
-    //     console.log('Este usuário já está na lista de participantes');
-    //   }
-    // };
+        await createGroupWithSharedDebt(groupName, adminUserId, pix, total, 'equals', participants);
+        route.params.refreshData();
 
-    const createGroupThenBackHome = () => {
-        createGroupWithSharedDebt(
-            groupName,
-            adminUserId,
-            pix,
-            total,
-            "equals",
-            participants);
-        navigation.goBack();
+        // Delayed navigation or any other actions
+
+        setTimeout(() => {
+            // Set creatingGroup back to false to hide the ActivityIndicator
+            setCreatingGroup(false);
+            navigation.goBack();
+        }, 1500);
     };
 
     return (
@@ -72,7 +66,7 @@ function CreateGroupScreen({route}) {
                 style={styles.input}
                 placeholder="Digite o nome do grupo"
                 value={groupName}
-                onChangeText={text => setGroupName(text)}
+                onChangeText={(text) => setGroupName(text)}
             />
 
             <Text style={styles.label}>PIX</Text>
@@ -80,7 +74,7 @@ function CreateGroupScreen({route}) {
                 style={styles.input}
                 placeholder="Digite a chave PIX do grupo"
                 value={pix}
-                onChangeText={text => setPix(text)}
+                onChangeText={(text) => setPix(text)}
             />
 
             <Text style={styles.label}>Valor Total</Text>
@@ -88,49 +82,19 @@ function CreateGroupScreen({route}) {
                 style={styles.input}
                 placeholder="Digite o valor a ser dividido"
                 value={total}
-                onChangeText={text => setTotal(text)}
+                onChangeText={(text) => setTotal(text)}
                 keyboardType="numeric"
             />
 
-            {/*<TouchableOpacity style={styles.participantsButton} onPress={toggleModal}>*/}
-            {/*    <Text style={styles.buttonText}>Adicionar Participante</Text>*/}
-            {/*</TouchableOpacity>*/}
-
-            {/*<Modal*/}
-            {/*  animationType="slide"*/}
-            {/*  transparent={true}*/}
-            {/*  visible={isModalVisible}*/}
-            {/*  onRequestClose={toggleModal}*/}
-            {/*>*/}
-            {/*  <View style={styles.modalContainer}>*/}
-            {/*    <Text style={styles.modalTitle}>Lista de Usuários</Text>*/}
-            {/*    <FlatList*/}
-            {/*      data={users}*/}
-            {/*      keyExtractor={item => item.userId}*/}
-            {/*      renderItem={({ item }) => (*/}
-            {/*        <TouchableOpacity*/}
-            {/*          style={styles.modalContent}*/}
-            {/*          onPress={() => addParticipant(item.userId)}*/}
-            {/*        >*/}
-            {/*          <Text style={styles.modalItem}>{item.name}</Text>*/}
-            {/*        </TouchableOpacity>*/}
-            {/*      )}*/}
-            {/*    />*/}
-            {/*    <TouchableOpacity*/}
-            {/*      style={styles.closeButton}*/}
-            {/*      onPress={toggleModal}*/}
-            {/*    >*/}
-            {/*      <Text style={styles.closeButtonText}>Fechar</Text>*/}
-            {/*    </TouchableOpacity>*/}
-            {/*  </View>*/}
-            {/*</Modal>*/}
-
             <TouchableOpacity style={styles.createButton} onPress={createGroupThenBackHome}>
-                <Text style={styles.buttonText}>Criar Grupo</Text>
+                {creatingGroup ? (
+                    <ActivityIndicator size="small" color="white"/>
+                ) : (
+                    <Text style={styles.buttonText}>Criar Grupo</Text>
+                )}
             </TouchableOpacity>
         </View>
     );
-
 }
 
 export default CreateGroupScreen;

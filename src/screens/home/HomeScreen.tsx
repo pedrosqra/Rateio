@@ -1,37 +1,13 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {readUser, signOut} from '../../../backend/user-config/user-service';
-import {Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {DocumentData} from 'firebase/firestore';
-import {CommonActions, useNavigation} from '@react-navigation/native';
-import {registerForPushNotificationsAsync,} from '../../resources/notifications';
-import * as Notifications from 'expo-notifications';
+import {readUser, signOut} from '../../../backend/user-config/user-service';
+import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+
 import styles from './HomeScreenStyles';
 import {Props} from './types';
-
-type RootStackParamList = {
-    Home: undefined;
-    GroupScreen: { groupId: string };
-};
-
-const SearchBar = ({
-                       placeholder,
-                       onChangeText
-                   }: {
-    placeholder: string,
-    onChangeText: (text: string) => void
-}) => {
-    return (
-        <View style={styles.searchBarContainer}>
-            <TextInput
-                style={styles.searchInput}
-                placeholder={placeholder}
-                onChangeText={onChangeText}
-            />
-        </View>
-    );
-};
 
 const HomeScreen = ({
                         route
@@ -46,18 +22,25 @@ const HomeScreen = ({
     const responseListener = useRef<any>();
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
+    const [isLoading, setIsLoading] = useState(true); // Add a loading state
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const refreshData = () => {
+        setRefreshKey(prevKey => prevKey + 1);
+    };
+
 
     const filteredGroups = groups.filter(group =>
         group.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const onPressAdicionarGrupo = () => {
-        navigation.navigate('CreateGroup', {uid});
+        navigation.navigate('CreateGroup', {uid, refreshData});
         console.log('Criando grupo');
     };
 
+
     const navigateToGroup = (groupId: string) => {
-        console.log('Navegar para o grupo: ', groupId);
         navigation.navigate('GroupScreen', {groupId});
     };
 
@@ -79,67 +62,57 @@ const HomeScreen = ({
             setGroups(userGroupsData);
         } catch (error) {
             console.error('Error fetching user data and groups:', error);
+        } finally {
+            setIsLoading(false); // Ensure loading state is set to false
         }
     };
 
-    // Função para obter e definir o nome do usuário
-    const fetchUserName = async () => {
+    const fetchUserDebts = async () => {
         try {
-            const userData = await readUser(uid);
+            const userDebts = await getDebtsForUser(uid);
+            const debtMap = new Map();
 
-            if (userData && userData.name) {
-                setUserName(userData.name);
-            }
-        } catch (error) {
-            console.error('Error fetching user data:', error);
-        }
-    };
-
-    useEffect(() => {
-        // Quando o componente montar, carregue o nome do usuário
-        fetchUserName();
-        fetchUserDataAndGroups();
-
-        const fetchUserDebts = async () => {
-            try {
-                const userDebts = await getDebtsForUser(uid)
-
-                const groupedDebts = {};
-
-                userDebts.forEach((debt) => {
-                    groupedDebts[debt.groupId] = debt.amount;
-                });
-                setUserDebts(groupedDebts);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        // Fetch user data and debts
-        fetchUserDebts();
-
-        registerForPushNotificationsAsync()
-            .then((token) => setExpoPushToken(token))
-            .catch(() => {
+            userDebts.forEach((debt) => {
+                debtMap.set(debt.groupId, debt.amount);
             });
 
-        notificationListener.current = Notifications.addNotificationReceivedListener(
-            (notification) => {
-                setNotification(notification);
-            }
-        );
+            setUserDebts(debtMap);
+        } catch (error) {
+            console.error('Error fetching user debts:', error);
+        }
+    };
 
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(
-            (response) => {
-                console.log(response);
-            }
-        );
+    useFocusEffect(
+        React.useCallback(() => {
+            // Fetch user debts and groups
+            Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
+            console.log('leitura HOME')
 
-        return () => {
-            Notifications.removeNotificationSubscription(notificationListener.current);
-            Notifications.removeNotificationSubscription(responseListener.current);
-        };
-    }, [route.params, groups]);
+            // Register for push notifications
+            // registerForPushNotificationsAsync()
+            //     .then((token) => setExpoPushToken(token))
+            //     .catch(() => {
+            //         console.error('Error registering for push notifications');
+            //     });
+            //
+            // notificationListener.current = Notifications.addNotificationReceivedListener(
+            //     (notification) => {
+            //         setNotification(notification);
+            //     }
+            // );
+            //
+            // responseListener.current = Notifications.addNotificationResponseReceivedListener(
+            //     (response) => {
+            //         console.log(response);
+            //     }
+            // );
+            //
+            // return () => {
+            //     Notifications.removeNotificationSubscription(notificationListener.current);
+            //     Notifications.removeNotificationSubscription(responseListener.current);
+            // };
+        }, [route.params, refreshKey]) // Remova groups daqui
+    );
 
     const handleLogout = async () => {
         try {
@@ -161,17 +134,22 @@ const HomeScreen = ({
                 <View style={styles.profileContent}>
                     <Image
                         source={{
-                            uri:
-                                'https://picsum.photos/300/310',
+                            uri: 'https://picsum.photos/300/310',
                         }}
                         style={styles.profileImage}
                     />
-                    <Text style={styles.profileName}>{userName}</Text>
+                    {isLoading ? (
+                        <View style={styles.loadingContainerStyle}>
+                            <ActivityIndicator size="large" color="#1CC29F"/>
+                        </View>
+                    ) : (
+                        <Text style={styles.profileName}>{userName}</Text>)}
                 </View>
                 <View style={styles.notificationContent}>
                     <Ionicons name="notifications-outline" size={28} color="white"/>
                 </View>
             </View>
+
             <View style={styles.searchBarContainer}>
                 <Ionicons name="search-outline" size={24} color="black"/>
                 <TextInput
@@ -179,31 +157,44 @@ const HomeScreen = ({
                     placeholder={'Pesquisar'}
                     onChangeText={(text) => setSearchText(text)}
                 />
-
             </View>
+
             <View style={styles.groupListTitleView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
             </View>
-            <ScrollView style={styles.list}>
-                {filteredGroups.map((group) => (
-                    <TouchableOpacity
-                        key={group.groupId}
-                        onPress={() => navigateToGroup(group.groupId)}
-                    >
-                        <View style={styles.listItem} key={group.groupId}>
-                            <View style={styles.groupImageContainer}>
-                                <Ionicons name="people-outline" size={28} color="white"/>
+
+            {isLoading ? (
+                <View style={styles.loadingContainerStyle}>
+                    <ActivityIndicator size="large" color="#1CC29F"/>
+                </View>
+            ) : (
+                <ScrollView style={styles.list}>
+                    {filteredGroups.map((group) => (
+                        <TouchableOpacity
+                            key={group.groupId}
+                            onPress={() => navigateToGroup(group.groupId)}
+                        >
+                            <View style={styles.listItem} key={group.groupId}>
+                                <View style={styles.groupImageContainer}>
+                                    <Ionicons name="people-outline" size={28} color="white"/>
+                                </View>
+                                <View style={styles.groupInfo}>
+                                    <Text style={styles.groupName}>{group.name}</Text>
+                                    {userDebts && (
+                                        <Text style={styles.groupDescription}>
+                                            Sua parte: R${userDebts.get(group.groupId)}
+                                        </Text>
+                                    )}
+                                    <Text style={styles.groupDescription}>
+                                        {group.debtDescription}
+                                    </Text>
+                                </View>
                             </View>
-                            <View style={styles.groupInfo}>
-                                <Text style={styles.groupName}>{group.name}</Text>
-                                <Text style={styles.groupDescription}>
-                                    {group.debtDescription}
-                                </Text>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            )}
+
             <View style={styles.addGroupButtonView}>
                 <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
                     <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
