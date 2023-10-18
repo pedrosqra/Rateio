@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     },
     modalContainer: {
         flex: 1,
-        backgroundColor: '#rgba(0, 0, 0, 0.6)', // Fundo escuro semi-transparente
+        backgroundColor: '#1CC29F', // Fundo escuro semi-transparente
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -28,10 +28,9 @@ export const styles = StyleSheet.create({
         width: '100%',
     },
     modalTitle: {
-        fontSize: 20,
+        fontSize: 30,
         fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 10,
+        marginBottom: 30,
         color: '#FFF', // Cor do texto claro
     },
     modalItem: {
@@ -51,7 +50,7 @@ export const styles = StyleSheet.create({
         backgroundColor: '#373B3F',
         padding: 10,
         borderRadius: 8,
-        borderColor: '#1CC29F',
+        borderColor: '#373B3F',
         borderWidth: 1,
         marginBottom: 10,
         color: 'white',

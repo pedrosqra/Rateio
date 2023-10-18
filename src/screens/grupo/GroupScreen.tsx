@@ -58,6 +58,7 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [debts, setDebts] = useState<Map<string, DocumentData>>(new Map());
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+    const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
 
     useEffect(() => {
 
@@ -146,6 +147,14 @@ const GroupScreen = ({navigation, route}: Props) => {
         }
     };
 
+    const setDebtProcessingForParticipant = (participantId, isProcessing) => {
+        setDebtProcessingMap((prevState) => {
+            const newState = new Map(prevState);
+            newState.set(participantId, isProcessing);
+            return newState;
+        });
+    };
+
     const toggleSimbolo = () => {
         setSimboloAtivo(!simboloAtivo);
     };
@@ -180,6 +189,7 @@ const GroupScreen = ({navigation, route}: Props) => {
             if (userDebt) {
                 // Toggle the isPaid property
                 const isPaid = !userDebt.isPaid;
+
 
                 try {
                     // Update the debt as paid or unpaid
@@ -279,24 +289,33 @@ const GroupScreen = ({navigation, route}: Props) => {
                                         <Text style={styles.participantName}>{participantNames[index]}</Text>
                                     </View>
                                     <View style={styles.actionButtons}>
-                                        {debts && debts.has(participantId) && (
-                                            <TouchableOpacity
-                                                style={
-                                                    debts.get(participantId)?.isPaid
-                                                        ? styles.markDebtButtonPaid
-                                                        : styles.markDebtButtonUnpaid
-                                                }
-                                                onPress={() => handleMarkDebtPaid(participantId)}
-                                            >
-                                                <Text style={
-                                                    debts.get(participantId)?.isPaid
-                                                        ? styles.markDebtButtonTextPaid
-                                                        : styles.markDebtButtonTextUnpaid
-                                                }>
-                                                    {debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
+                                        <TouchableOpacity
+                                            style={
+                                                debts.get(participantId)?.isPaid
+                                                    ? styles.markDebtButtonPaid
+                                                    : styles.markDebtButtonUnpaid
+                                            }
+                                            onPress={() => {
+                                                setDebtProcessingForParticipant(participantId, true);
+                                                handleMarkDebtPaid(participantId).then(() => {
+                                                    setDebtProcessingForParticipant(participantId, false);
+                                                });
+                                            }}
+                                        >
+                                            {debtProcessingMap.get(participantId) ? (
+                                                <ActivityIndicator size="small" color="white"/>
+                                            ) : (
+                                                <Text
+                                                    style={
+                                                        debts.get(participantId)?.isPaid
+                                                            ? styles.markDebtButtonTextPaid
+                                                            : styles.markDebtButtonTextUnpaid
+                                                    }
+                                                >
+                                                    {debtProcessingMap.get(participantId) ? '...' : debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
                                                 </Text>
-                                            </TouchableOpacity>
-                                        )}
+                                            )}
+                                        </TouchableOpacity>
                                         <TouchableOpacity
                                             style={styles.removeButton}
                                             onPress={() => handleRemoveMember(participantId)}
