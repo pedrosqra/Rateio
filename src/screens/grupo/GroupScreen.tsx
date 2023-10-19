@@ -48,7 +48,6 @@ const GroupScreen = ({navigation, route}: Props) => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
-
     const [valorMonetario, setValorMonetario] = useState(0);
     const [simboloAtivo, setSimboloAtivo] = useState(false);
     const [groupData, setGroupData] = useState<DocumentData | null>({debtFinalDate: null});
@@ -59,6 +58,7 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
     const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
+    const [showActivityIndicator, setShowActivityIndicator] = useState(false);
 
     useEffect(() => {
 
@@ -107,6 +107,23 @@ const GroupScreen = ({navigation, route}: Props) => {
         console.log('leitura GRUPO')
 
     }, [groupId]);
+
+    const updateGroupData = async () => {
+        try {
+            const data = await getGroupById(groupId);
+            setGroupData(data || {debtFinalDate: null});
+
+            const names = await Promise.all((data?.members || []).map(async (participantId: string) => {
+                const userData = await readUser(participantId);
+                return userData?.name || 'Unknown';
+            }));
+
+            setParticipantNames(names);
+        } catch (error) {
+            console.error('Error reading the group:', error);
+            setError(true);
+        }
+    };
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
@@ -159,9 +176,20 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     const handleAddUserToGroup = () => {
-        addUserToGroup(groupId, userEmail).then(r => console.log('User was added to the group.'));
+        setShowActivityIndicator(true);
+        addUserToGroup(groupId, userEmail)
+            .then(() => {
+                console.log('User was added to the group.');
+                updateGroupData();
+                setShowActivityIndicator(false);
+            })
+            .catch((error) => {
+                console.error('Error adding user to the group:', error);
+            });
+
         setModalVisible(false);
-    }
+    };
+
 
     const handleDeleteGroup = () => {
         setConfirmDialogMessage("Tem certeza que quer apagar o grupo?");
@@ -201,12 +229,15 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     const handleRemoveMember = async (userId: string) => {
+        setShowActivityIndicator(true);
         try {
             await deleteUserFromGroup(groupId, userId);
+            updateGroupData();
         } catch (error) {
             console.error('Error removing user:', error);
         }
-    }
+        setShowActivityIndicator(false);
+    };
 
     const copyToClipboard = async (text) => {
         await Clipboard.setStringAsync(text);
@@ -271,7 +302,10 @@ const GroupScreen = ({navigation, route}: Props) => {
                             <Text style={styles.textBold}>Participantes</Text>
                             <AntDesign name="right" size={12}/>
                         </Pressable>
-                        {groupData?.members &&
+                        {showActivityIndicator ? (
+                            <ActivityIndicator size={'large'} color={'#373B3F'}/>
+                        ) : (
+                            groupData?.members &&
                             groupData.members.map((participantId: string, index: number) => (
                                 <View key={index} style={styles.participantInfo}>
                                     <View style={styles.participantStyle}>
@@ -319,7 +353,8 @@ const GroupScreen = ({navigation, route}: Props) => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-                            ))}
+                            ))
+                        )}
                     </View>
                     <Modal
                         animationType="slide"
