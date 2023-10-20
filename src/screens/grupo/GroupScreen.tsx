@@ -60,12 +60,7 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
     const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
     const [showActivityIndicator, setShowActivityIndicator] = useState(false);
-    const minWidth = 300;
-    const maxWidth = 550;
-
-    const randomWidth = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
-    const randomHeight = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
-    const imageUrl = `https://picsum.photos/${randomWidth}/${randomHeight}`;
+    const imageUrl = `https://picsum.photos/500/500}`;
 
     useEffect(() => {
 
