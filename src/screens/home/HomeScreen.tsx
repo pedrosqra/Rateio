@@ -39,6 +39,10 @@ const HomeScreen = ({
         console.log('Criando grupo');
     };
 
+    const onPressProfile = () => {
+        navigation.navigate('Profile');
+        console.log('Abrir Perfil');
+    };
 
     const navigateToGroup = (groupId: string) => {
         navigation.navigate('GroupScreen', {groupId, uid});
@@ -131,7 +135,7 @@ const HomeScreen = ({
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <View style={styles.profileContent}>
+                <TouchableOpacity style={styles.profileContent} onPress={onPressProfile}>
                     <Image
                         source={{
                             uri: 'https://picsum.photos/300/310',
@@ -144,7 +148,7 @@ const HomeScreen = ({
                         </View>
                     ) : (
                         <Text style={styles.profileName}>{userName}</Text>)}
-                </View>
+                </TouchableOpacity>
                 <View style={styles.notificationContent}>
                     <Ionicons name="notifications-outline" size={28} color="white"/>
                 </View>

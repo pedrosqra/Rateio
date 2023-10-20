@@ -1,11 +1,15 @@
 import * as React from 'react'
 import { AntDesign } from '@expo/vector-icons'
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
+import {useNavigation} from '@react-navigation/native';
 
 const Profile = () => {
+  const navigation = useNavigation()
+
   return (
     <View style={styles.container}>
       <AntDesign
+        onPress={() => navigation.goBack()}
         name="arrowleft"
         size={30}
         color="white"
