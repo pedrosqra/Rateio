@@ -41,7 +41,7 @@ const HomeScreen = ({
 
 
     const navigateToGroup = (groupId: string) => {
-        navigation.navigate('GroupScreen', {groupId});
+        navigation.navigate('GroupScreen', {groupId, uid});
     };
 
     const fetchUserDataAndGroups = async () => {

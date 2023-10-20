@@ -45,10 +45,10 @@ const ConfirmDialog = ({visible, message, onConfirm, onCancel}) => {
 
 const GroupScreen = ({navigation, route}: Props) => {
     const groupId = route.params.groupId;
+    const userAdminId = route.params.uid;
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
-
     const [valorMonetario, setValorMonetario] = useState(0);
     const [simboloAtivo, setSimboloAtivo] = useState(false);
     const [groupData, setGroupData] = useState<DocumentData | null>({debtFinalDate: null});
@@ -58,6 +58,14 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [debts, setDebts] = useState<Map<string, DocumentData>>(new Map());
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+    const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
+    const [showActivityIndicator, setShowActivityIndicator] = useState(false);
+    const minWidth = 300;
+    const maxWidth = 550;
+
+    const randomWidth = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+    const randomHeight = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+    const imageUrl = `https://picsum.photos/${randomWidth}/${randomHeight}`;
 
     useEffect(() => {
 
@@ -65,7 +73,6 @@ const GroupScreen = ({navigation, route}: Props) => {
             try {
                 const debtData = await getGroupDebts(groupId);
 
-                // Create a map with userId as the key and debt data as the value
                 const debtMap = new Map<string, DocumentData>();
 
                 debtData.forEach((debt) => {
@@ -108,6 +115,23 @@ const GroupScreen = ({navigation, route}: Props) => {
 
     }, [groupId]);
 
+    const updateGroupData = async () => {
+        try {
+            const data = await getGroupById(groupId);
+            setGroupData(data || {debtFinalDate: null});
+
+            const names = await Promise.all((data?.members || []).map(async (participantId: string) => {
+                const userData = await readUser(participantId);
+                return userData?.name || 'Unknown';
+            }));
+
+            setParticipantNames(names);
+        } catch (error) {
+            console.error('Error reading the group:', error);
+            setError(true);
+        }
+    };
+
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -146,14 +170,33 @@ const GroupScreen = ({navigation, route}: Props) => {
         }
     };
 
+    const setDebtProcessingForParticipant = (participantId, isProcessing) => {
+        setDebtProcessingMap((prevState) => {
+            const newState = new Map(prevState);
+            newState.set(participantId, isProcessing);
+            return newState;
+        });
+    };
+
     const toggleSimbolo = () => {
         setSimboloAtivo(!simboloAtivo);
     };
 
     const handleAddUserToGroup = () => {
-        addUserToGroup(groupId, userEmail).then(r => console.log('User was added to the group.'));
+        setShowActivityIndicator(true);
+        addUserToGroup(groupId, userEmail)
+            .then(() => {
+                console.log('User was added to the group.');
+                updateGroupData();
+                setShowActivityIndicator(false);
+            })
+            .catch((error) => {
+                console.error('Error adding user to the group:', error);
+            });
+
         setModalVisible(false);
-    }
+    };
+
 
     const handleDeleteGroup = () => {
         setConfirmDialogMessage("Tem certeza que quer apagar o grupo?");
@@ -165,7 +208,7 @@ const GroupScreen = ({navigation, route}: Props) => {
             .then(() => {
                 console.log("Group deleted");
                 setShowConfirmDialog(false);
-                navigation.goBack(); // Navigate back to the previous screen
+                navigation.goBack();
             });
     };
 
@@ -174,34 +217,39 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     const handleMarkDebtPaid = async (userId: string) => {
-        // Check if the user's debt is marked as paid or unpaid
-        if (debts) {
-            const userDebt = debts.get(userId);
-            if (userDebt) {
-                // Toggle the isPaid property
-                const isPaid = !userDebt.isPaid;
+        if (groupData.adminId === userAdminId) {
+            if (debts) {
+                const userDebt = debts.get(userId);
+                if (userDebt) {
+                    const isPaid = !userDebt.isPaid;
 
-                try {
-                    // Update the debt as paid or unpaid
-                    await setDebtAsPaid(userDebt.groupId, userDebt.debtorId, isPaid);
-                    // Update the debt in the local state
-                    const updatedDebt = {...userDebt, isPaid};
-                    debts.set(userId, updatedDebt);
-                    setDebts(new Map(debts));
-                } catch (error) {
-                    console.error('Error updating debt payment:', error);
+
+                    try {
+                        await setDebtAsPaid(userDebt.groupId, userDebt.debtorId, isPaid);
+                        const updatedDebt = {...userDebt, isPaid};
+                        debts.set(userId, updatedDebt);
+                        setDebts(new Map(debts));
+                    } catch (error) {
+                        console.error('Error updating debt payment:', error);
+                    }
                 }
             }
         }
     };
 
     const handleRemoveMember = async (userId: string) => {
-        try {
-            await deleteUserFromGroup(groupId, userId);
-        } catch (error) {
-            console.error('Error removing user:', error);
+        console.log(userId, groupData.adminId, userAdminId)
+        if (groupData.adminId === userAdminId) {
+            setShowActivityIndicator(true);
+            try {
+                await deleteUserFromGroup(groupId, userId);
+                updateGroupData();
+            } catch (error) {
+                console.error('Error removing user:', error);
+            }
+            setShowActivityIndicator(false);
         }
-    }
+    };
 
     const copyToClipboard = async (text) => {
         await Clipboard.setStringAsync(text);
@@ -224,7 +272,7 @@ const GroupScreen = ({navigation, route}: Props) => {
                 <>
                     <Image
                         source={{
-                            uri: 'https://picsum.photos/500/500',
+                            uri: imageUrl
                         }}
                         style={styles.image}
                     />
@@ -266,7 +314,10 @@ const GroupScreen = ({navigation, route}: Props) => {
                             <Text style={styles.textBold}>Participantes</Text>
                             <AntDesign name="right" size={12}/>
                         </Pressable>
-                        {groupData?.members &&
+                        {showActivityIndicator ? (
+                            <ActivityIndicator size={'large'} color={'#373B3F'}/>
+                        ) : (
+                            groupData?.members &&
                             groupData.members.map((participantId: string, index: number) => (
                                 <View key={index} style={styles.participantInfo}>
                                     <View style={styles.participantStyle}>
@@ -279,80 +330,94 @@ const GroupScreen = ({navigation, route}: Props) => {
                                         <Text style={styles.participantName}>{participantNames[index]}</Text>
                                     </View>
                                     <View style={styles.actionButtons}>
-                                        {debts && debts.has(participantId) && (
-                                            <TouchableOpacity
-                                                style={
-                                                    debts.get(participantId)?.isPaid
-                                                        ? styles.markDebtButtonPaid
-                                                        : styles.markDebtButtonUnpaid
-                                                }
-                                                onPress={() => handleMarkDebtPaid(participantId)}
-                                            >
-                                                <Text style={
-                                                    debts.get(participantId)?.isPaid
-                                                        ? styles.markDebtButtonTextPaid
-                                                        : styles.markDebtButtonTextUnpaid
-                                                }>
-                                                    {debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        )}
                                         <TouchableOpacity
-                                            style={styles.removeButton}
-                                            onPress={() => handleRemoveMember(participantId)}
+                                            style={
+                                                debts.get(participantId)?.isPaid
+                                                    ? styles.markDebtButtonPaid
+                                                    : styles.markDebtButtonUnpaid
+                                            }
+                                            onPress={() => {
+                                                setDebtProcessingForParticipant(participantId, true);
+                                                handleMarkDebtPaid(participantId).then(() => {
+                                                    setDebtProcessingForParticipant(participantId, false);
+                                                });
+                                            }}
                                         >
-                                            <Icon name="trash" size={20} color="white"/>
+                                            {debtProcessingMap.get(participantId) ? (
+                                                <ActivityIndicator size="small" color="white"/>
+                                            ) : (
+                                                <Text
+                                                    style={
+                                                        debts.get(participantId)?.isPaid
+                                                            ? styles.markDebtButtonTextPaid
+                                                            : styles.markDebtButtonTextUnpaid
+                                                    }
+                                                >
+                                                    {debtProcessingMap.get(participantId) ? '...' : debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
+                                                </Text>
+                                            )}
                                         </TouchableOpacity>
+                                        {groupData.adminId === userAdminId && (
+                                            <TouchableOpacity
+                                                style={styles.removeButton}
+                                                onPress={() => handleRemoveMember(participantId)}
+                                            >
+                                                <Icon name="trash" size={20} color="white"/>
+                                            </TouchableOpacity>)}
                                     </View>
                                 </View>
-                            ))}
+                            ))
+                        )}
                     </View>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isModalVisible}
-                        onRequestClose={toggleModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            <Text style={styles.modalTitle}>Adicionar Usuário</Text>
-                            <View style={styles.inputContainer}>
-                                <Icon name="envelope" size={20} color="#1CC29F" style={styles.icon}/>
-                                <TextInput
-                                    value={userEmail}
-                                    style={styles.input}
-                                    placeholder="Email"
-                                    placeholderTextColor={styles.placeholderText.color}
-                                    autoCapitalize="none"
-                                    onChangeText={(text) => setUserEmail(text)}
-                                />
-                            </View>
-                            <TouchableOpacity onPress={handleAddUserToGroup} style={styles.modalButton}>
-                                <Text style={styles.confirmButtonText}>Confirmar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.modalButton}
-                                onPress={toggleModal}
+                    {groupData.adminId === userAdminId && (
+                        <>
+                            <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={isModalVisible}
+                                onRequestClose={toggleModal}
                             >
-                                <Text style={styles.buttonText}>Fechar</Text>
+                                <View style={styles.modalContainer}>
+                                    <Text style={styles.modalTitle}>Adicionar Usuário</Text>
+                                    <View style={styles.inputContainer}>
+                                        <Icon name="envelope" size={20} color="#1CC29F" style={styles.icon}/>
+                                        <TextInput
+                                            value={userEmail}
+                                            style={styles.input}
+                                            placeholder="Email"
+                                            placeholderTextColor={styles.placeholderText.color}
+                                            autoCapitalize="none"
+                                            onChangeText={(text) => setUserEmail(text)}
+                                        />
+                                    </View>
+                                    <TouchableOpacity onPress={handleAddUserToGroup} style={styles.modalButton}>
+                                        <Text style={styles.confirmButtonText}>Confirmar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.modalButton}
+                                        onPress={toggleModal}
+                                    >
+                                        <Text style={styles.buttonText}>Fechar</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </Modal>
+                            <TouchableOpacity style={styles.button} onPress={toggleModal}>
+                                <Text style={styles.buttonAddText}>Adicionar Participante</Text>
                             </TouchableOpacity>
-                        </View>
-                    </Modal>
-                    <TouchableOpacity style={styles.button} onPress={toggleModal}>
-                        <Text style={styles.buttonAddText}>Adicionar Participante</Text>
-                    </TouchableOpacity>
-                    <Pressable
-                        onPress={handleDeleteGroup}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Finalizar Grupo</Text>
-                    </Pressable>
+                            <Pressable
+                                onPress={handleDeleteGroup}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Finalizar Grupo</Text>
+                            </Pressable>
 
-                    <ConfirmDialog
-                        visible={showConfirmDialog}
-                        message={confirmDialogMessage}
-                        onConfirm={handleConfirmDeleteGroup}
-                        onCancel={handleCancelDeleteGroup}
-                    />
+                            <ConfirmDialog
+                                visible={showConfirmDialog}
+                                message={confirmDialogMessage}
+                                onConfirm={handleConfirmDeleteGroup}
+                                onCancel={handleCancelDeleteGroup}
+                            />
+                        </>)}
                 </>
             )}
         </View>
