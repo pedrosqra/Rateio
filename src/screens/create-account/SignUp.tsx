@@ -2,10 +2,12 @@ import React, {useState} from 'react';
 import {ActivityIndicator, Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import styles from './SignUpStyles'; // Create separate styles for SignUp screen
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import {signup} from '../../../backend/user-config/user-service'
+import {useUserStore} from "../../store/user";
 
 const SignUp = () => {
+    const {setPersonalData} = useUserStore();
     const navigation = useNavigation();
 
     const [name, setName] = useState('');
@@ -18,10 +20,18 @@ const SignUp = () => {
     const signUp = async () => {
         setLoading(true)
         try {
-            console.log(email, password, name, pix)
             const response = await signup(email, password, name, pix)
-            if (response) {
-                alert("Conta criada com sucesso. Verifique  seu email.")
+            if (response != false) {
+                alert("Conta criada com sucesso.")
+                setPersonalData(response);
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [
+                            {name: 'Home', params: {uid: response.userId}},
+                        ],
+                    })
+                );
 
             } else {
                 alert("Ocorreu um erro ao criar a conta. Verifique email e senha.")

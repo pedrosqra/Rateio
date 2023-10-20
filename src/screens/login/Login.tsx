@@ -1,16 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {ActivityIndicator, Image, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {login} from '../../../backend/user-config/user-service';
 import styles from '../login/LoginStyles';
-import {onAuthStateChanged} from 'firebase/auth';
-import {firebaseAuth} from '../../../backend/firebase/firebase';
 import {useUserStore} from '../../store/user';
-import {useNavigation} from '@react-navigation/native';
+import {CommonActions, useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Login = () => {
     const {setPersonalData} = useUserStore();
-
     const navigation = useNavigation();
 
     const [email, setEmail] = useState('');
@@ -18,11 +15,27 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
 
     const signIn = async () => {
+        if (email.trim() === '' || password === '') {
+            alert('Please enter both email and password.');
+            return;
+        }
+
         setLoading(true);
+
         try {
             const response = await login(email, password);
             if (!response) {
-                alert('Ocorreu um erro ao fazer login. Verifique email e senha.');
+                alert('An error occurred while logging in. Please check your email and password.');
+            } else {
+                setPersonalData(response.user);
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 1,
+                        routes: [
+                            {name: 'Home', params: {uid: response.uid}},
+                        ],
+                    })
+                );
             }
         } finally {
             setLoading(false);
@@ -32,15 +45,6 @@ const Login = () => {
     const handleSignUpPress = () => {
         navigation.navigate('SignUp'); // Navigate to SignUp screen
     };
-
-    useEffect(() => {
-        onAuthStateChanged(firebaseAuth, (user) => {
-            if (user) {
-                setPersonalData(user);
-                navigation.navigate('Home', {uid: user.uid});
-            }
-        });
-    }, []);
 
     return (
         <View style={styles.container}>
