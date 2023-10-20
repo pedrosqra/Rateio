@@ -1,13 +1,41 @@
-import * as React from 'react'
+import React, { useState, useEffect } from 'react'; // Importe o useState e useEffect
 import { AntDesign } from '@expo/vector-icons'
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
 import {useNavigation} from '@react-navigation/native';
+import {readUser} from '../../../backend/user-config/user-service';
 
-const Profile = () => {
-  const navigation = useNavigation()
+const Profile = ({route}) => {
+  const [userName] = useState('');
+  const [firstName, setFirstName] = useState(''); 
+  const [lastName, setLastName] = useState(''); 
+  const [userEmail, setUserEmail] = useState('');
+
+  const navigation = useNavigation();
+  const { userId } = route.params; 
+
+  useEffect(() => {
+    // Use o userId para buscar as informações do usuário
+    readUser(userId).then((userData) => {
+      if (userData && userData.name) {  
+        const nameParts = userData.name.split(' ');
+        const firstName = nameParts[0]; 
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+  
+        setFirstName(firstName);
+        setLastName(lastName);
+      }
+      if (userData && userData.email) {
+        setUserEmail(userData.email); // Atualize o estado com o e-mail do usuário
+      }
+    }).catch((error) => {
+      console.error('Erro ao obter dados do usuário', error);
+    });
+  }, []);
+
   const onPressChangeFirstName = () => {
     navigation.navigate('ChangeFirstNameScreen');
     console.log('Abrir Editar Nome');
+    console.log()
   };
 
   const onPressChangeLastName = () => {
@@ -47,19 +75,19 @@ const Profile = () => {
       <Pressable style={styles.firstName} onPress={onPressChangeFirstName}>
         <Text style={styles.textBold}>Nome</Text>
         <Text>
-          {`Seu nome`} <AntDesign name="right" size={12} />
+          {firstName} <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
       <Pressable style={styles.lastName} onPress={onPressChangeLastName}>
         <Text style={styles.textBold}>Sobrenome</Text>
         <Text>
-          {`Seu sobrenome`} <AntDesign name="right" size={12} />
+          {lastName} <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
       <Pressable style={styles.changeEmail} onPress={onPressChangeEmail}>
         <Text style={styles.textBold}>Alterar E-mail</Text>
         <Text>
-          {`n****@gmail.com`} <AntDesign name="right" size={12} />
+          {userEmail} <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
       <Pressable style={styles.changePassword} onPress={onPressChangePassword}>

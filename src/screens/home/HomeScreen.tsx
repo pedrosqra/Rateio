@@ -40,9 +40,9 @@ const HomeScreen = ({
     };
 
     const onPressProfile = () => {
-        navigation.navigate('Profile');
+        navigation.navigate('Profile', { userId: uid });
         console.log('Abrir Perfil');
-    };
+      };      
 
     const navigateToGroup = (groupId: string) => {
         navigation.navigate('GroupScreen', {groupId, uid});
