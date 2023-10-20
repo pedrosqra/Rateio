@@ -7,11 +7,15 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 
 const ChangeLastNameScreen = () => {
+  const navigation = useNavigation()
+
   return (
     <View style={styles.container}>
       <AntDesign
+        onPress={() => navigation.goBack()}
         name="arrowleft"
         size={30}
         color="white"

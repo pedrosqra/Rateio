@@ -5,6 +5,25 @@ import {useNavigation} from '@react-navigation/native';
 
 const Profile = () => {
   const navigation = useNavigation()
+  const onPressChangeFirstName = () => {
+    navigation.navigate('ChangeFirstNameScreen');
+    console.log('Abrir Editar Nome');
+  };
+
+  const onPressChangeLastName = () => {
+    navigation.navigate('ChangeLastNameScreen');
+    console.log('Abrir Editar Nome');
+  };
+  
+  const onPressChangeEmail = () => {
+    navigation.navigate('ChangeEmail');
+    console.log('Abrir Editar Email');
+  };
+
+  const onPressChangePassword = () => {
+    navigation.navigate('ChangePassword');
+    console.log('Abrir Editar Senha');
+  };
 
   return (
     <View style={styles.container}>
@@ -25,25 +44,25 @@ const Profile = () => {
         <Text style={styles.textBold}>Meu histórico de despesas</Text>
         <AntDesign name="right" size={12} />
       </Pressable>
-      <Pressable style={styles.firstName}>
+      <Pressable style={styles.firstName} onPress={onPressChangeFirstName}>
         <Text style={styles.textBold}>Nome</Text>
         <Text>
           {`Seu nome`} <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
-      <Pressable style={styles.lastName}>
+      <Pressable style={styles.lastName} onPress={onPressChangeLastName}>
         <Text style={styles.textBold}>Sobrenome</Text>
         <Text>
           {`Seu sobrenome`} <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
-      <Pressable style={styles.changeEmail}>
+      <Pressable style={styles.changeEmail} onPress={onPressChangeEmail}>
         <Text style={styles.textBold}>Alterar E-mail</Text>
         <Text>
           {`n****@gmail.com`} <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
-      <Pressable style={styles.changePassword}>
+      <Pressable style={styles.changePassword} onPress={onPressChangePassword}>
         <Text style={[styles.textBold]}>Alterar Senha</Text>
       </Pressable>
       <Pressable style={styles.button}>
