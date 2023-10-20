@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Image, Modal, Pressable, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {
+    ActivityIndicator,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 
 import {AntDesign, Feather} from '@expo/vector-icons';
@@ -250,183 +260,191 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     return (
-        <View style={styles.container}>
-            <AntDesign
-                onPress={() => navigation.goBack()}
-                name="arrowleft"
-                size={30}
-                color="white"
-                style={styles.arrow}
-            />
-            {isLoading ? (
-                <ActivityIndicator size={'large'} color={'#fff'}/>
-            ) : error ? (
-                <Text>Error loading group data</Text>
-            ) : (
-                <>
-                    <Image
-                        source={{
-                            uri: 'https://picsum.photos/500/510'
-                        }}
-                        style={styles.image}
-                    />
-                    <View style={styles.groupInfo}>
-                        <Pressable
-                            onPress={() => console.log('GROUP PRESS')}
-                            style={styles.inline}
-                        >
-                            <Text style={styles.textBold}>Nome do grupo</Text>
-                            <View style={styles.innerGroup}>
-                                <Text style={styles.text}>{groupData?.name}</Text>
-                            </View>
-                        </Pressable>
-                        <Pressable
-                            style={styles.inline}
-                        >
-                            <Text style={styles.textBold}>Pix</Text>
-                            <TouchableOpacity onPress={() => copyToClipboard(groupData?.adminPix)}>
-                                <View style={styles.innerGroup}>
-                                    <Feather style={styles.copy} name="copy" size={16}/>
-                                    <Text style={styles.text}>{groupData?.adminPix}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </Pressable>
-                        <Pressable
-                            style={styles.inline}
-                        >
-                            <Text style={styles.textBold}>Valor Total</Text>
-                            <View style={styles.innerGroup}>
-                                <Text style={styles.text}>R$: {groupData?.debtAmount}</Text>
-                            </View>
-                        </Pressable>
-                        <Pressable
-                            style={styles.inline}
-                        >
-                            <Text style={styles.textBold}>Convite</Text>
-                            <TouchableOpacity onPress={() => copyToClipboard("Bora dividir? Participe do meu rateio: " + groupData?.groupIdInvite)}>
-                                <View style={styles.innerGroup}>
-                                    <Feather style={styles.copy} name="copy" size={16}/>
-                                    <Text style={styles.text}> {groupData?.groupIdInvite}</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </Pressable>
-
-                    </View>
-                    <View style={styles.groupInfo}>
-                        <Pressable
-                            onPress={() => console.log('PARTICIPANTS PRESS')}
-                            style={styles.inline}
-                        >
-                            <Text style={styles.textBold}>Participantes</Text>
-                            <AntDesign name="right" size={12}/>
-                        </Pressable>
-                        {showActivityIndicator ? (
-                            <ActivityIndicator size={'large'} color={'#373B3F'}/>
-                        ) : (
-                            groupData?.members &&
-                            groupData.members.map((participantId: string, index: number) => (
-                                <View key={index} style={styles.participantInfo}>
-                                    <View style={styles.participantStyle}>
-                                        <Image
-                                            source={{
-                                                uri: 'https://picsum.photos/200/310',
-                                            }}
-                                            style={styles.participantImage}
-                                        />
-                                        <Text style={styles.participantName}>{participantNames[index]}</Text>
-                                    </View>
-                                    <View style={styles.actionButtons}>
-                                        <TouchableOpacity
-                                            style={
-                                                debts.get(participantId)?.isPaid
-                                                    ? styles.markDebtButtonPaid
-                                                    : styles.markDebtButtonUnpaid
-                                            }
-                                            onPress={() => {
-                                                setDebtProcessingForParticipant(participantId, true);
-                                                handleMarkDebtPaid(participantId).then(() => {
-                                                    setDebtProcessingForParticipant(participantId, false);
-                                                });
-                                            }}
-                                        >
-                                            {debtProcessingMap.get(participantId) ? (
-                                                <ActivityIndicator size="small" color="white"/>
-                                            ) : (
-                                                <Text
-                                                    style={
-                                                        debts.get(participantId)?.isPaid
-                                                            ? styles.markDebtButtonTextPaid
-                                                            : styles.markDebtButtonTextUnpaid
-                                                    }
-                                                >
-                                                    {debtProcessingMap.get(participantId) ? '...' : debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
-                                                </Text>
-                                            )}
-                                        </TouchableOpacity>
-                                        {groupData.adminId === userAdminId && (
-                                            <TouchableOpacity
-                                                style={styles.removeButton}
-                                                onPress={() => handleRemoveMember(participantId)}
-                                            >
-                                                <Icon name="trash" size={20} color="white"/>
-                                            </TouchableOpacity>)}
-                                    </View>
-                                </View>
-                            ))
-                        )}
-                    </View>
-                    {groupData.adminId === userAdminId && (
-                        <>
-                            <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={isModalVisible}
-                                onRequestClose={toggleModal}
-                            >
-                                <View style={styles.modalContainer}>
-                                    <Text style={styles.modalTitle}>Adicionar Usuário</Text>
-                                    <View style={styles.inputContainer}>
-                                        <Icon name="envelope" size={20} color="#1CC29F" style={styles.icon}/>
-                                        <TextInput
-                                            value={userEmail}
-                                            style={styles.input}
-                                            placeholder="Email"
-                                            placeholderTextColor={styles.placeholderText.color}
-                                            autoCapitalize="none"
-                                            onChangeText={(text) => setUserEmail(text)}
-                                        />
-                                    </View>
-                                    <TouchableOpacity onPress={handleAddUserToGroup} style={styles.modalButton}>
-                                        <Text style={styles.confirmButtonText}>Confirmar</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={styles.modalButton}
-                                        onPress={toggleModal}
-                                    >
-                                        <Text style={styles.buttonText}>Fechar</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </Modal>
-                            <TouchableOpacity style={styles.button} onPress={toggleModal}>
-                                <Text style={styles.buttonAddText}>Adicionar Participante</Text>
-                            </TouchableOpacity>
+        <ScrollView style={styles.containerScroll}>
+            <View style={styles.container}>
+                <AntDesign
+                    onPress={() => navigation.goBack()}
+                    name="arrowleft"
+                    size={30}
+                    color="white"
+                    style={styles.arrow}
+                />
+                {isLoading ? (
+                    <ActivityIndicator size={'large'} color={'#fff'}/>
+                ) : error ? (
+                    <Text>Error loading group data</Text>
+                ) : (
+                    <>
+                        <Image
+                            source={{
+                                uri: 'https://picsum.photos/500/510'
+                            }}
+                            style={styles.image}
+                        />
+                        <View style={styles.groupInfo}>
                             <Pressable
-                                onPress={handleDeleteGroup}
-                                style={styles.button}
+                                onPress={() => console.log('GROUP PRESS')}
+                                style={styles.inline}
                             >
-                                <Text style={styles.buttonText}>Finalizar Grupo</Text>
+                                <Text style={styles.textBold}>Nome do grupo</Text>
+                                <View style={styles.innerGroup}>
+                                    <Text style={styles.text}>{groupData?.name}</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable
+                                style={styles.inline}
+                            >
+                                <Text style={styles.textBold}>Pix</Text>
+                                <TouchableOpacity onPress={() => copyToClipboard(groupData?.adminPix)}>
+                                    <View style={styles.innerGroup}>
+                                        <Feather style={styles.copy} name="copy" size={16}/>
+                                        <Text style={styles.text}>{groupData?.adminPix}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </Pressable>
+                            <Pressable
+                                style={styles.inline}
+                            >
+                                <Text style={styles.textBold}>Valor Total</Text>
+                                <View style={styles.innerGroup}>
+                                    <Text style={styles.text}>R$: {groupData?.debtAmount}</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable
+                                style={styles.inline}
+                            >
+                                <Text style={styles.textBold}>Convite</Text>
+                                <TouchableOpacity
+                                    onPress={() => copyToClipboard("Bora dividir? Participe do meu rateio: " + groupData?.groupIdInvite)}>
+                                    <View style={styles.innerGroup}>
+                                        <Feather style={styles.copy} name="copy" size={16}/>
+                                        <Text style={styles.text}> {groupData?.groupIdInvite}</Text>
+                                    </View>
+                                </TouchableOpacity>
                             </Pressable>
 
-                            <ConfirmDialog
-                                visible={showConfirmDialog}
-                                message={confirmDialogMessage}
-                                onConfirm={handleConfirmDeleteGroup}
-                                onCancel={handleCancelDeleteGroup}
-                            />
-                        </>)}
-                </>
-            )}
-        </View>
+                        </View>
+                        <View style={styles.groupInfo}>
+                            <Pressable
+                                onPress={() => console.log('PARTICIPANTS PRESS')}
+                                style={styles.inline}
+                            >
+                                <Text style={styles.textBold}>Participantes</Text>
+                                <AntDesign name="right" size={12}/>
+                            </Pressable>
+                            {showActivityIndicator ? (
+                                <ActivityIndicator size="large" color="#373B3F"/>
+                            ) : (
+                                groupData?.members && (
+                                    <ScrollView style={styles.scrollView}>
+                                        {groupData.members.map((participantId: string, index: number) => (
+                                            <View key={index} style={styles.participantInfo}>
+                                                <View style={styles.participantStyle}>
+                                                    <Image
+                                                        source={{
+                                                            uri: 'https://picsum.photos/200/310',
+                                                        }}
+                                                        style={styles.participantImage}
+                                                    />
+                                                    <Text
+                                                        style={styles.participantName}>{participantNames[index]}</Text>
+                                                </View>
+                                                <View style={styles.actionButtons}>
+                                                    <TouchableOpacity
+                                                        style={
+                                                            debts.get(participantId)?.isPaid
+                                                                ? styles.markDebtButtonPaid
+                                                                : styles.markDebtButtonUnpaid
+                                                        }
+                                                        onPress={() => {
+                                                            setDebtProcessingForParticipant(participantId, true);
+                                                            handleMarkDebtPaid(participantId).then(() => {
+                                                                setDebtProcessingForParticipant(participantId, false);
+                                                            });
+                                                        }}
+                                                    >
+                                                        {debtProcessingMap.get(participantId) ? (
+                                                            <ActivityIndicator size="small" color="white"/>
+                                                        ) : (
+                                                            <Text
+                                                                style={
+                                                                    debts.get(participantId)?.isPaid
+                                                                        ? styles.markDebtButtonTextPaid
+                                                                        : styles.markDebtButtonTextUnpaid
+                                                                }
+                                                            >
+                                                                {debtProcessingMap.get(participantId) ? '...' : debts.get(participantId)?.isPaid ? 'Pago' : 'Não Pago'}
+                                                            </Text>
+                                                        )}
+                                                    </TouchableOpacity>
+                                                    {groupData.adminId === userAdminId && (
+                                                        <TouchableOpacity
+                                                            style={styles.removeButton}
+                                                            onPress={() => handleRemoveMember(participantId)}
+                                                        >
+                                                            <Icon name="trash" size={20} color="white"/>
+                                                        </TouchableOpacity>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        ))}
+                                    </ScrollView>
+                                )
+                            )}
+                        </View>
+                        {groupData.adminId === userAdminId && (
+                            <>
+                                <Modal
+                                    animationType="slide"
+                                    transparent={true}
+                                    visible={isModalVisible}
+                                    onRequestClose={toggleModal}
+                                >
+                                    <View style={styles.modalContainer}>
+                                        <Text style={styles.modalTitle}>Adicionar Usuário</Text>
+                                        <View style={styles.inputContainer}>
+                                            <Icon name="envelope" size={20} color="#1CC29F" style={styles.icon}/>
+                                            <TextInput
+                                                value={userEmail}
+                                                style={styles.input}
+                                                placeholder="Email"
+                                                placeholderTextColor={styles.placeholderText.color}
+                                                autoCapitalize="none"
+                                                onChangeText={(text) => setUserEmail(text)}
+                                            />
+                                        </View>
+                                        <TouchableOpacity onPress={handleAddUserToGroup} style={styles.modalButton}>
+                                            <Text style={styles.confirmButtonText}>Confirmar</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.modalButton}
+                                            onPress={toggleModal}
+                                        >
+                                            <Text style={styles.buttonText}>Fechar</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </Modal>
+                                <TouchableOpacity style={styles.button} onPress={toggleModal}>
+                                    <Text style={styles.buttonAddText}>Adicionar Participante</Text>
+                                </TouchableOpacity>
+                                <Pressable
+                                    onPress={handleDeleteGroup}
+                                    style={styles.button}
+                                >
+                                    <Text style={styles.buttonText}>Finalizar Grupo</Text>
+                                </Pressable>
+
+                                <ConfirmDialog
+                                    visible={showConfirmDialog}
+                                    message={confirmDialogMessage}
+                                    onConfirm={handleConfirmDeleteGroup}
+                                    onCancel={handleCancelDeleteGroup}
+                                />
+                            </>)}
+                    </>
+                )}
+            </View>
+        </ScrollView>
     );
 };
 

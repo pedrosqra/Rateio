@@ -41,7 +41,6 @@ function CreateGroupScreen({route}) {
         // Delayed navigation or any other actions
 
         setTimeout(() => {
-            // Set creatingGroup back to false to hide the ActivityIndicator
             setCreatingGroup(false);
             navigation.goBack();
         }, 1500);

@@ -1,10 +1,10 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Image, ScrollView, Text,Modal, TextInput, TouchableOpacity, View} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {ActivityIndicator, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {DocumentData} from 'firebase/firestore';
 import {readUser, signOut} from '../../../backend/user-config/user-service';
-import {getDebtsForUser, getGroups, getGroupId, addUserToGroup} from '../../../backend/group-config/group-service';
+import {addUserToGroup, getDebtsForUser, getGroupId, getGroups} from '../../../backend/group-config/group-service';
 
 import styles from './HomeScreenStyles';
 import {Props} from './types';
@@ -39,7 +39,7 @@ const HomeScreen = ({
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
-        
+
     };
 
     const onPressAdicionarGrupo = () => {
@@ -50,9 +50,10 @@ const HomeScreen = ({
     const onPressJoinAGroupWithCode = async () => {
         const code = invite.replace(/[^0-9]/g, '');
         const groupId = await getGroupId(code);
+        console.log(userEmail)
         addUserToGroup(groupId, userEmail);
         console.log('Entrando no grupo de codigo: ', code, groupId);
-        refreshData();
+        setRefreshKey(refreshKey + 1);
         setModalVisible(false);
     };
 
@@ -106,7 +107,7 @@ const HomeScreen = ({
             // Fetch user debts and groups
             Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
             console.log('leitura HOME')
-            
+
         }, [route.params, refreshKey]) // Remova groups daqui
     );
 
@@ -124,7 +125,6 @@ const HomeScreen = ({
         }
     };
 
-        
 
     return (
         <View style={styles.container}>
@@ -161,9 +161,9 @@ const HomeScreen = ({
                 <Text style={styles.groupsListTitle}>Grupos</Text>
                 <View style={styles.refreshButtonContainer}>
                     <TouchableOpacity
-                            style={styles.refreshButton}
-                            onPress={refreshData}
-                        >
+                        style={styles.refreshButton}
+                        onPress={refreshData}
+                    >
                         <Ionicons name="refresh-outline" size={24} color="white"/>
                     </TouchableOpacity>
                 </View>
@@ -211,8 +211,8 @@ const HomeScreen = ({
                     <Text style={styles.addText}>Criar</Text>
                 </TouchableOpacity>
             </View>
-            
-            
+
+
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -232,8 +232,8 @@ const HomeScreen = ({
                             onChangeText={(text) => setInvite(text)}
                         />
                     </View>
-                    <TouchableOpacity   
-                        onPress={onPressJoinAGroupWithCode} 
+                    <TouchableOpacity
+                        onPress={onPressJoinAGroupWithCode}
                         style={styles.modalButton}>
                         <Text style={styles.confirmButtonText}>Confirmar</Text>
                     </TouchableOpacity>
