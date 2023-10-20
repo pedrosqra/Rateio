@@ -205,8 +205,7 @@ const HomeScreen = ({
                     <Ionicons name="people" size={28} color="white" style={styles.addIcon}/>
                     <Text style={styles.addText}>Entrar</Text>
                 </TouchableOpacity>
-            </View>
-            <View style={styles.addGroupButtonView}>
+
                 <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
                     <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
                     <Text style={styles.addText}>Criar</Text>

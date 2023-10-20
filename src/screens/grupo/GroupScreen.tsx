@@ -303,10 +303,10 @@ const GroupScreen = ({navigation, route}: Props) => {
                             style={styles.inline}
                         >
                             <Text style={styles.textBold}>Convite</Text>
-                            <TouchableOpacity onPress={() => copyToClipboard(groupData?.groupIdInvite)}>
+                            <TouchableOpacity onPress={() => copyToClipboard("Bora dividir? Participe do meu rateio: " + groupData?.groupIdInvite)}>
                                 <View style={styles.innerGroup}>
                                     <Feather style={styles.copy} name="copy" size={16}/>
-                                    <Text style={styles.text}>{groupData?.groupIdInvite}</Text>
+                                    <Text style={styles.text}> {groupData?.groupIdInvite}</Text>
                                 </View>
                             </TouchableOpacity>
                         </Pressable>

@@ -13,7 +13,7 @@ function CreateGroupScreen({route}) {
 
     const [groupName, setGroupName] = useState('----');
     const [pix, setPix] = useState('------------');
-    const [total, setTotal] = useState('$ 0,00');
+    const [total, setTotal] = useState('0,00');
     const [participants, setParticipants] = useState([]);
     const [users, setUsers] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);

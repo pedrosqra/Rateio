@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        marginTop: 10,
+
     },
     profileContent: {
         flexDirection: 'row',
@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#373B3F',
         flexDirection: 'row',
         justifyContent: 'space-between',
-
         marginLeft: 19,
         color: '#1CC29F',
         width: '100%',
@@ -108,7 +107,6 @@ const styles = StyleSheet.create({
     groupListTitleView: {
         backgroundColor: '#373B3F',
         paddingHorizontal: 20,
-        paddingVertical: 10,
         flexDirection: 'row', // Para ocupar toda a largura
         alignItems: 'flex-start', // Alinhar ao início da tela (à esquerda)
         justifyContent: 'flex-start',
@@ -118,8 +116,7 @@ const styles = StyleSheet.create({
         fontSize: 23,
         color: 'white',
         fontWeight: 'bold',
-        marginBottom: 10,
-        marginTop: 10,
+
         minWidth: 80,
         marginLeft: 11,
     },
@@ -185,10 +182,12 @@ const styles = StyleSheet.create({
     },
     addGroupButtonView: {
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         width: '95%',
         paddingHorizontal: 20,
         paddingVertical: 10,
+        flexDirection: 'row',
+
     },
     addGroupButton: {
         flexDirection: 'row',
@@ -196,9 +195,9 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 10,
         marginBottom: 10,
-        width: '100%',
+        width: '45%',
         alignItems: 'center',
-        justifyContent: 'center',
+
     },
     addIcon: {
         marginRight: 10, // Espaço entre o ícone e o texto
