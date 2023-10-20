@@ -60,7 +60,6 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
     const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
     const [showActivityIndicator, setShowActivityIndicator] = useState(false);
-    const imageUrl = `https://picsum.photos/500/500}`;
 
     useEffect(() => {
 
@@ -267,7 +266,7 @@ const GroupScreen = ({navigation, route}: Props) => {
                 <>
                     <Image
                         source={{
-                            uri: imageUrl
+                            uri: 'https://picsum.photos/500/510'
                         }}
                         style={styles.image}
                     />
