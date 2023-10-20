@@ -45,6 +45,7 @@ const ConfirmDialog = ({visible, message, onConfirm, onCancel}) => {
 
 const GroupScreen = ({navigation, route}: Props) => {
     const groupId = route.params.groupId;
+    const userAdminId = route.params.uid;
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -59,6 +60,12 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
     const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
     const [showActivityIndicator, setShowActivityIndicator] = useState(false);
+    const minWidth = 300;
+    const maxWidth = 550;
+
+    const randomWidth = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+    const randomHeight = Math.floor(Math.random() * (maxWidth - minWidth + 1)) + minWidth;
+    const imageUrl = `https://picsum.photos/${randomWidth}/${randomHeight}`;
 
     useEffect(() => {
 
@@ -210,33 +217,38 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     const handleMarkDebtPaid = async (userId: string) => {
-        if (debts) {
-            const userDebt = debts.get(userId);
-            if (userDebt) {
-                const isPaid = !userDebt.isPaid;
+        if (groupData.adminId === userAdminId) {
+            if (debts) {
+                const userDebt = debts.get(userId);
+                if (userDebt) {
+                    const isPaid = !userDebt.isPaid;
 
 
-                try {
-                    await setDebtAsPaid(userDebt.groupId, userDebt.debtorId, isPaid);
-                    const updatedDebt = {...userDebt, isPaid};
-                    debts.set(userId, updatedDebt);
-                    setDebts(new Map(debts));
-                } catch (error) {
-                    console.error('Error updating debt payment:', error);
+                    try {
+                        await setDebtAsPaid(userDebt.groupId, userDebt.debtorId, isPaid);
+                        const updatedDebt = {...userDebt, isPaid};
+                        debts.set(userId, updatedDebt);
+                        setDebts(new Map(debts));
+                    } catch (error) {
+                        console.error('Error updating debt payment:', error);
+                    }
                 }
             }
         }
     };
 
     const handleRemoveMember = async (userId: string) => {
-        setShowActivityIndicator(true);
-        try {
-            await deleteUserFromGroup(groupId, userId);
-            updateGroupData();
-        } catch (error) {
-            console.error('Error removing user:', error);
+        console.log(userId, groupData.adminId, userAdminId)
+        if (groupData.adminId === userAdminId) {
+            setShowActivityIndicator(true);
+            try {
+                await deleteUserFromGroup(groupId, userId);
+                updateGroupData();
+            } catch (error) {
+                console.error('Error removing user:', error);
+            }
+            setShowActivityIndicator(false);
         }
-        setShowActivityIndicator(false);
     };
 
     const copyToClipboard = async (text) => {
@@ -260,7 +272,7 @@ const GroupScreen = ({navigation, route}: Props) => {
                 <>
                     <Image
                         source={{
-                            uri: 'https://picsum.photos/500/500',
+                            uri: imageUrl
                         }}
                         style={styles.image}
                     />
@@ -345,63 +357,67 @@ const GroupScreen = ({navigation, route}: Props) => {
                                                 </Text>
                                             )}
                                         </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={styles.removeButton}
-                                            onPress={() => handleRemoveMember(participantId)}
-                                        >
-                                            <Icon name="trash" size={20} color="white"/>
-                                        </TouchableOpacity>
+                                        {groupData.adminId === userAdminId && (
+                                            <TouchableOpacity
+                                                style={styles.removeButton}
+                                                onPress={() => handleRemoveMember(participantId)}
+                                            >
+                                                <Icon name="trash" size={20} color="white"/>
+                                            </TouchableOpacity>)}
                                     </View>
                                 </View>
                             ))
                         )}
                     </View>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={isModalVisible}
-                        onRequestClose={toggleModal}
-                    >
-                        <View style={styles.modalContainer}>
-                            <Text style={styles.modalTitle}>Adicionar Usuário</Text>
-                            <View style={styles.inputContainer}>
-                                <Icon name="envelope" size={20} color="#1CC29F" style={styles.icon}/>
-                                <TextInput
-                                    value={userEmail}
-                                    style={styles.input}
-                                    placeholder="Email"
-                                    placeholderTextColor={styles.placeholderText.color}
-                                    autoCapitalize="none"
-                                    onChangeText={(text) => setUserEmail(text)}
-                                />
-                            </View>
-                            <TouchableOpacity onPress={handleAddUserToGroup} style={styles.modalButton}>
-                                <Text style={styles.confirmButtonText}>Confirmar</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.modalButton}
-                                onPress={toggleModal}
+                    {groupData.adminId === userAdminId && (
+                        <>
+                            <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={isModalVisible}
+                                onRequestClose={toggleModal}
                             >
-                                <Text style={styles.buttonText}>Fechar</Text>
+                                <View style={styles.modalContainer}>
+                                    <Text style={styles.modalTitle}>Adicionar Usuário</Text>
+                                    <View style={styles.inputContainer}>
+                                        <Icon name="envelope" size={20} color="#1CC29F" style={styles.icon}/>
+                                        <TextInput
+                                            value={userEmail}
+                                            style={styles.input}
+                                            placeholder="Email"
+                                            placeholderTextColor={styles.placeholderText.color}
+                                            autoCapitalize="none"
+                                            onChangeText={(text) => setUserEmail(text)}
+                                        />
+                                    </View>
+                                    <TouchableOpacity onPress={handleAddUserToGroup} style={styles.modalButton}>
+                                        <Text style={styles.confirmButtonText}>Confirmar</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.modalButton}
+                                        onPress={toggleModal}
+                                    >
+                                        <Text style={styles.buttonText}>Fechar</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </Modal>
+                            <TouchableOpacity style={styles.button} onPress={toggleModal}>
+                                <Text style={styles.buttonAddText}>Adicionar Participante</Text>
                             </TouchableOpacity>
-                        </View>
-                    </Modal>
-                    <TouchableOpacity style={styles.button} onPress={toggleModal}>
-                        <Text style={styles.buttonAddText}>Adicionar Participante</Text>
-                    </TouchableOpacity>
-                    <Pressable
-                        onPress={handleDeleteGroup}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Finalizar Grupo</Text>
-                    </Pressable>
+                            <Pressable
+                                onPress={handleDeleteGroup}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Finalizar Grupo</Text>
+                            </Pressable>
 
-                    <ConfirmDialog
-                        visible={showConfirmDialog}
-                        message={confirmDialogMessage}
-                        onConfirm={handleConfirmDeleteGroup}
-                        onCancel={handleCancelDeleteGroup}
-                    />
+                            <ConfirmDialog
+                                visible={showConfirmDialog}
+                                message={confirmDialogMessage}
+                                onConfirm={handleConfirmDeleteGroup}
+                                onCancel={handleCancelDeleteGroup}
+                            />
+                        </>)}
                 </>
             )}
         </View>
