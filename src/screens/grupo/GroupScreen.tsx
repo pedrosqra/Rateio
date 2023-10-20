@@ -299,6 +299,18 @@ const GroupScreen = ({navigation, route}: Props) => {
                                 <Text style={styles.text}>R$: {groupData?.debtAmount}</Text>
                             </View>
                         </Pressable>
+                        <Pressable
+                            style={styles.inline}
+                        >
+                            <Text style={styles.textBold}>Convite</Text>
+                            <TouchableOpacity onPress={() => copyToClipboard(groupData?.groupIdInvite)}>
+                                <View style={styles.innerGroup}>
+                                    <Feather style={styles.copy} name="copy" size={16}/>
+                                    <Text style={styles.text}>{groupData?.groupIdInvite}</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </Pressable>
+
                     </View>
                     <View style={styles.groupInfo}>
                         <Pressable

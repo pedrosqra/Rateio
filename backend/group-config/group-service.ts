@@ -34,6 +34,21 @@ const checkGroupIdExists = async (groupId: string) => {
     return groupSnapshot.exists();
 };
 
+const joinAGroupWithCode = async (groupInvite: number, userEmail: string) => {
+    try {
+        const groupId = await getGroupId(groupInvite);
+
+        if (groupId) {
+            await addUserToGroup(groupId, userEmail);
+            console.log('User added to group with code successfully');
+        } else {
+            console.log('Group not found');
+        }
+    } catch (error) {
+        console.error('Error joining group:', error);
+    }
+}
+
 // Create a group with a shared debt and distribute it
 const createGroupWithSharedDebt = async (
     groupName: string,
@@ -47,6 +62,7 @@ const createGroupWithSharedDebt = async (
         // Step 1: Create the group
         const newGroupId = generateGroupId();
         const currentDate = new Date();
+        const groupInvite = await generateUniqueGroupInvite();
 
         const groupData = {
             groupId: newGroupId,
@@ -58,6 +74,7 @@ const createGroupWithSharedDebt = async (
             dateCreated: currentDate,
             name: groupName,
             members: [adminId, ...members], // Include admin in members
+            groupIdInvite: groupInvite,
         };
 
         await firestoreSetDoc(groupDocument(newGroupId), groupData);
@@ -108,7 +125,8 @@ const createGroupWithSharedDebt = async (
                 console.log('Admin added to the group and updated successfully');
             }
         }
-
+        
+        console.log("convite:",groupInvite);
         console.log("Group created with shared debt successfully");
         return newGroupId;
     } catch (error) {
@@ -177,6 +195,44 @@ const getGroups = async () => {
     return snapshot.docs.map(doc => doc.data());
 };
 
+const getGroupInvites = async () => {
+    const snapshot = await getDocs(groupsCollection);
+    return snapshot.docs.map(doc => doc.data().groupIdInvite);
+};
+
+const getGroupId = async (code) => {
+    const snapshot = await getDocs(groupsCollection);
+    const matchingGroup = snapshot.docs.find(doc => doc.data().groupIdInvite == code);
+  
+    // Check if a matching group was found
+    if (matchingGroup) {
+        const result = matchingGroup.data().groupId;
+        return result;
+    } else {
+        // Return something meaningful when no matching group is found
+        return null; // or throw an error, depending on your use case
+    }
+};
+
+const generateRandomNumber = () => {
+    return Math.floor(1000 + Math.random() * 9000); // Gera um número aleatório de 1000 a 9999
+};
+
+const isNumberInGroupIds = async (number) => {
+    const existingGroupIds = await getGroupInvites();
+    return existingGroupIds.includes(number);
+};
+
+const generateUniqueGroupInvite = async () => {
+    let randomNumber = await generateRandomNumber();
+
+    while (await isNumberInGroupIds(randomNumber)) {
+        randomNumber = await generateRandomNumber();
+    }
+
+    return randomNumber;
+};
+
 // Function to get a specific group by ID
 const getGroupById = async (groupId: string) => {
     try {
@@ -192,6 +248,8 @@ const getGroupById = async (groupId: string) => {
         return null;
     }
 };
+
+
 
 // Function to update a group's fields
 const updateGroup = async (groupId: string, updatedFields: Group) => {
@@ -317,6 +375,7 @@ const deleteUserFromGroup = async (groupId: string, userId: string) => {
 };
 
 const addUserToGroup = async (groupId, userEmail) => {
+    console.log("tentando entrar:", groupId, userEmail)
     try {
         // Check if the user is already a member of the group
         const groupDocRef = groupDocument(groupId);
@@ -497,5 +556,7 @@ export {
     getDebtsForUser,
     getPaidDebtsForUser,
     setDebtAsPaid,
-    getGroupDebts
+    getGroupDebts,
+    joinAGroupWithCode,
+    getGroupId,
 };
