@@ -1,5 +1,6 @@
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
+
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {DocumentData} from 'firebase/firestore';
@@ -9,17 +10,11 @@ import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-se
 import styles from './HomeScreenStyles';
 import {Props} from './types';
 
-const HomeScreen = ({
-                        route
-                    }: Props) => {
+const HomeScreen = ({ route }: Props) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
     const [groups, setGroups] = useState<DocumentData[]>([]);
     const navigation = useNavigation();
-    const [expoPushToken, setExpoPushToken] = useState<any>('');
-    const [notification, setNotification] = useState<any>();
-    const notificationListener = useRef<any>();
-    const responseListener = useRef<any>();
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
     const [isLoading, setIsLoading] = useState(true); // Add a loading state
@@ -87,30 +82,6 @@ const HomeScreen = ({
             // Fetch user debts and groups
             Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
             console.log('leitura HOME')
-
-            // Register for push notifications
-            // registerForPushNotificationsAsync()
-            //     .then((token) => setExpoPushToken(token))
-            //     .catch(() => {
-            //         console.error('Error registering for push notifications');
-            //     });
-            //
-            // notificationListener.current = Notifications.addNotificationReceivedListener(
-            //     (notification) => {
-            //         setNotification(notification);
-            //     }
-            // );
-            //
-            // responseListener.current = Notifications.addNotificationResponseReceivedListener(
-            //     (response) => {
-            //         console.log(response);
-            //     }
-            // );
-            //
-            // return () => {
-            //     Notifications.removeNotificationSubscription(notificationListener.current);
-            //     Notifications.removeNotificationSubscription(responseListener.current);
-            // };
         }, [route.params, refreshKey]) // Remova groups daqui
     );
 
@@ -194,20 +165,12 @@ const HomeScreen = ({
                     ))}
                 </ScrollView>
             )}
-
             <View style={styles.addGroupButtonView}>
                 <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
                     <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
                     <Text style={styles.addText}>Adicionar novo grupo</Text>
                 </TouchableOpacity>
             </View>
-            {/*<TouchableOpacity onPress={handleLogout}>*/}
-            {/*    <Text>Logout</Text>*/}
-            {/*</TouchableOpacity>*/}
-            {/*<Button*/}
-            {/*    title="Press to schedule a notification"*/}
-            {/*    onPress={() => schedulePushNotification()}*/}
-            {/*/>*/}
         </View>
     );
 };
