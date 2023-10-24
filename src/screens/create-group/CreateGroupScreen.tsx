@@ -57,13 +57,12 @@ function CreateGroupScreen({ route }) {
         // Set creatingGroup to true to show the ActivityIndicator
         setCreatingGroup(true);
 
-        const [day, month, year] = date.split(' / ')
-        const dateLimit = new Date(Number(year), Number(month) - 1, Number(day), 10)
-
-        const groupId = await createGroupWithSharedDebt(groupName, adminUserId, pix, total, 'equals', participants, dateLimit.getTime());
+        const groupId = await createGroupWithSharedDebt(groupName, adminUserId, pix, total, 'equals', participants);
 
         if (groupId) {
             // Group was created, scheduling notification
+            const [day, month, year] = date.split(' / ')
+            const dateLimit = new Date(Number(year), Number(month) - 1, Number(day), 10)
             const currentDate = new Date()
 
             const seconds = (dateLimit.getTime() - currentDate.getTime()) / 1000;
