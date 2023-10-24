@@ -41,7 +41,8 @@ const createGroupWithSharedDebt = async (
     adminPix: string,
     sharedDebtAmount: number,
     divisionMethod: string,
-    members: string[]
+    members: string[],
+    dateLimit: number
 ) => {
     try {
         // Step 1: Create the group
@@ -58,6 +59,7 @@ const createGroupWithSharedDebt = async (
             dateCreated: currentDate,
             name: groupName,
             members: [adminId, ...members], // Include admin in members
+            dateLimit
         };
 
         await firestoreSetDoc(groupDocument(newGroupId), groupData);

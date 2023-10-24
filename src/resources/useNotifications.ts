@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react"
-import * as Notifications from "expo-notifications"
+import { useState, useEffect, useRef } from "react";
+import * as Notifications from "expo-notifications";
 
-import { registerForPushNotificationsAsync } from "../utils/handleNotification"
+import { registerForPushNotificationsAsync } from "../utils/handleNotification";
 
 interface ILocalNotificationHook {
   expoPushToken: string | undefined;
@@ -17,9 +17,9 @@ export const useLocalNotification = (): ILocalNotificationHook => {
   const responseListener = useRef<Notifications.Subscription | undefined>();
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token?: string) => {
+    registerForPushNotificationsAsync().then((token) =>{
       setExpoPushToken(token || "");
-    });
+    })
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener(notification => {

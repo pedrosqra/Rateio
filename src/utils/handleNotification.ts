@@ -2,18 +2,16 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
-const TWO_WEEKS = 60 // * 60 * 24 * 14;
-
-export const schedulePushNotification = async () => {
+export const schedulePushNotification = async (groupName: string, trigger: number) => {
   await Notifications.scheduleNotificationAsync({
     identifier: "review",
     content: {
-      title: "Your opinion is important to us!",
-      subtitle: "It's been a while since you used the app.",
-      body: "Please take a moment to leave a review."
+      title: "Alerta!",
+      // subtitle: "It's been a while since you used the app.",
+      body: `A data limite para pagamento do grupo ${groupName} é hoje!`
     },
     trigger: {
-      seconds: TWO_WEEKS
+      seconds: trigger
     }
   });
 };
@@ -41,7 +39,7 @@ export const registerForPushNotificationsAsync = async () => {
     }
 
     if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
+      // alert("Failed to get push token for push notification!");
       return;
     }
 
