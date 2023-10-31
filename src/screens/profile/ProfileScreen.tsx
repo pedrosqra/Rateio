@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react' // Importe o useState e useEffect
 import { AntDesign } from '@expo/vector-icons'
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
-import { readUser } from '../../../backend/user-config/user-service'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { readUser, signOut } from '../../../backend/user-config/user-service'
 
 const Profile = ({ route }) => {
   const [userName] = useState('')
@@ -12,23 +12,23 @@ const Profile = ({ route }) => {
   const navigation = useNavigation()
   const { userId } = route.params
 
-  useEffect(() => {
-    // Use o userId para buscar as informações do usuário
-    readUser(userId)
-      .then((userData) => {
-        if (userData && userData.name) {
-          const name = userData.name
-
-          setname(name)
-        }
-        if (userData && userData.email) {
-          setUserEmail(userData.email) // Atualize o estado com o e-mail do usuário
-        }
-      })
-      .catch((error) => {
-        console.error('Erro ao obter dados do usuário', error)
-      })
-  }, [])
+  useFocusEffect(
+    React.useCallback(() => {
+      readUser(userId)
+        .then((userData) => {
+          if (userData && userData.name) {
+            const name = userData.name
+            setname(name)
+          }
+          if (userData && userData.email) {
+            setUserEmail(userData.email) // Atualize o estado com o e-mail do usuário
+          }
+        })
+        .catch((error) => {
+          console.error('Erro ao obter dados do usuário', error)
+        })
+    }, [userId])
+  )
 
   const onPressChangeName = () => {
     navigation.navigate('ChangeNameScreen', {
@@ -64,6 +64,16 @@ const Profile = ({ route }) => {
     }
   }
 
+  const onPressLogout = async () => {
+    const success = await signOut()
+    if (success) {
+      console.log('Logout realizado com sucesso')
+      navigation.navigate('Login') // Navegue para a tela de login após o logout
+    } else {
+      console.error('Erro ao fazer logout')
+    }
+  }
+
   return (
     <View style={styles.container}>
       <AntDesign
@@ -73,6 +83,15 @@ const Profile = ({ route }) => {
         color="white"
         style={styles.arrow}
       />
+      <View style={styles.logoutContainer}>
+        <AntDesign
+          onPress={onPressLogout}
+          name="logout"
+          size={24}
+          color="white"
+        />
+        <Text style={styles.logoutText}>Sair</Text>
+      </View>
       <Image
         source={{
           uri: 'https://picsum.photos/300/310',
@@ -155,6 +174,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 30,
     top: 50,
+  },
+  logoutContainer: {
+    position: 'absolute',
+    right: 30,
+    top: 50,
+    alignItems: 'center',
+  },
+  logoutText: {
+    color: 'white',
   },
   button: {
     width: '87.44%',
