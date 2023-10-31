@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { AntDesign } from '@expo/vector-icons'
 import {
   StyleSheet,
@@ -7,11 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native'
-import { useRoute, useNavigation } from '@react-navigation/native'
-import {
-  readUser,
-  updateUserName,
-} from '../../../backend/user-config/user-service'
+import { useNavigation } from '@react-navigation/native'
+import { updateUserName } from '../../../backend/user-config/user-service'
 
 const ChangeNameScreen = ({ route }) => {
   const navigation = useNavigation()

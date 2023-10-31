@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react' // Importe o useState e useEffect
+import React, { useState } from 'react' // Importe o useState e useEffect
 import { AntDesign } from '@expo/vector-icons'
 import {
   StyleSheet,
@@ -8,10 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import {
-  readUser,
-  updateUserEmail,
-} from '../../../backend/user-config/user-service'
+import { updateUserEmail } from '../../../backend/user-config/user-service'
 
 const ChangeEmail = ({ route }) => {
   const navigation = useNavigation()

@@ -207,6 +207,21 @@ const updateUserEmail = async (userId, newEmail) => {
   }
 }
 
+const updateUserPassword = async (oldPassword, newPassword) => {
+  try {
+    const user = firebaseAuth.currentUser
+    const credential = EmailAuthProvider.credential(user.email, oldPassword)
+
+    await reauthenticateWithCredential(user, credential)
+    await updatePassword(user, newPassword)
+
+    console.log('Senha atualizada com sucesso')
+  } catch (error) {
+    console.error('Erro ao atualizar a senha:', error)
+    throw error
+  }
+}
+
 export {
   deleteUser,
   readUser,
@@ -220,4 +235,5 @@ export {
   signOut,
   updateUserName,
   updateUserEmail,
+  updateUserPassword,
 }

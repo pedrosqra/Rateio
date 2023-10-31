@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useState } from 'react'
 import { AntDesign } from '@expo/vector-icons'
 import {
   StyleSheet,
@@ -8,9 +8,24 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import { updateUserPassword } from '../../../backend/user-config/user-service'
 
-const ChangePassword = () => {
+const ChangePassword = ({ route }) => {
   const navigation = useNavigation()
+  const { userId } = route.params
+
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+
+  const isButtonDisabled = !oldPassword || !newPassword
+  const handleChangePassword = async () => {
+    try {
+      await updateUserPassword(userId, oldPassword, newPassword)
+      navigation.goBack()
+    } catch (error) {
+      console.error('Erro ao alterar a senha:', error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -24,13 +39,31 @@ const ChangePassword = () => {
 
       <Text style={[styles.title]}>Alterar senha</Text>
       <View style={styles.oldPass}>
-        <TextInput value={`Senha Antiga`} style={styles.input} />
+        <TextInput
+          value={oldPassword}
+          onChangeText={setOldPassword}
+          style={styles.input}
+          secureTextEntry
+          placeholderTextColor={styles.placeholderText.color}
+          placeholder="Antiga senha"
+        />
       </View>
       <View style={styles.newPass}>
-        <TextInput value={`Nova Senha`} style={styles.input} />
+        <TextInput
+          value={newPassword}
+          onChangeText={setNewPassword}
+          style={styles.input}
+          secureTextEntry
+          placeholderTextColor={styles.placeholderText.color}
+          placeholder="Nova senha"
+        />
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={[styles.button, isButtonDisabled && styles.disabledButton]}
+          onPress={handleChangePassword}
+          disabled={isButtonDisabled}
+        >
           <Text style={styles.buttonText}>Confirmar</Text>
         </TouchableOpacity>
       </View>
@@ -117,6 +150,12 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: 'white',
+  },
+  placeholderText: {
+    color: 'white',
+  },
+  disabledButton: {
+    backgroundColor: 'gray',
   },
 })
 

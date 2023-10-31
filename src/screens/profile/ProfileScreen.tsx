@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react' // Importe o useState e useEffect
+import React, { useState } from 'react'
 import { AntDesign } from '@expo/vector-icons'
-import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
+import { StyleSheet, Text, View, Pressable, Image, Alert } from 'react-native'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
-import { readUser, signOut } from '../../../backend/user-config/user-service'
+import {
+  readUser,
+  signOut,
+  deleteUser,
+} from '../../../backend/user-config/user-service'
 
 const Profile = ({ route }) => {
-  const [userName] = useState('')
   const [name, setname] = useState('')
   const [userEmail, setUserEmail] = useState('')
 
@@ -48,7 +51,7 @@ const Profile = ({ route }) => {
   }
 
   const onPressChangePassword = () => {
-    navigation.navigate('ChangePassword')
+    navigation.navigate('ChangePassword', { userId: userId })
     console.log('Abrir Editar Senha')
   }
 
@@ -74,6 +77,28 @@ const Profile = ({ route }) => {
     }
   }
 
+  const onPressDeleteAccount = () => {
+    Alert.alert('Confirmação', 'Você realmente deseja deletar sua conta?', [
+      {
+        text: 'Não',
+        style: 'cancel',
+      },
+      {
+        text: 'Sim',
+        onPress: async () => {
+          try {
+            await deleteUser(userId)
+            console.log('Conta deletada com sucesso')
+            alert('Conta deletada com sucesso.')
+            navigation.navigate('Login') // Navegue para a tela de login após deletar a conta
+          } catch (error) {
+            console.error('Erro ao deletar a conta', error)
+          }
+        },
+      },
+    ])
+  }
+
   return (
     <View style={styles.container}>
       <AntDesign
@@ -87,7 +112,7 @@ const Profile = ({ route }) => {
         <AntDesign
           onPress={onPressLogout}
           name="logout"
-          size={24}
+          size={30}
           color="white"
         />
         <Text style={styles.logoutText}>Sair</Text>
@@ -118,7 +143,7 @@ const Profile = ({ route }) => {
       <Pressable style={styles.changePassword} onPress={onPressChangePassword}>
         <Text style={[styles.textBold]}>Alterar Senha</Text>
       </Pressable>
-      <Pressable style={styles.button}>
+      <Pressable style={styles.button} onPress={onPressDeleteAccount}>
         <Text style={styles.buttonText}>Deletar minha conta</Text>
       </Pressable>
     </View>
