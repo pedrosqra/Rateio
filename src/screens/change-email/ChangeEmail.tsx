@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useState, useEffect } from 'react' // Importe o useState e useEffect
 import { AntDesign } from '@expo/vector-icons'
 import {
   StyleSheet,
@@ -8,9 +8,33 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import {
+  readUser,
+  updateUserEmail,
+} from '../../../backend/user-config/user-service'
 
-const ChangeEmail = () => {
+const ChangeEmail = ({ route }) => {
   const navigation = useNavigation()
+  const { userId } = route.params
+  const currentEmail = route.params?.currentEmail || ''
+
+  const [newEmail, setNewEmail] = useState(currentEmail)
+
+  const handleUpdateEmail = async () => {
+    try {
+      if (newEmail === '') {
+        console.log('O novo e-mail não pode estar vazio')
+        return
+      }
+
+      await updateUserEmail(userId, newEmail) // Substitua userId pelo valor apropriado
+
+      console.log('E-mail atualizado com sucesso')
+      navigation.goBack()
+    } catch (error) {
+      console.error('Erro ao atualizar o e-mail:', error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -25,11 +49,15 @@ const ChangeEmail = () => {
       <Text style={[styles.title]}>Alterar e-mail</Text>
 
       <View style={styles.inputContainer}>
-        <TextInput value={`meuemail@gmail.com`} style={styles.input} />
+        <TextInput
+          value={newEmail}
+          onChangeText={(text) => setNewEmail(text)}
+          style={styles.input}
+        />
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleUpdateEmail}>
           <Text style={styles.buttonText}>Atualizar e-mail</Text>
         </TouchableOpacity>
       </View>

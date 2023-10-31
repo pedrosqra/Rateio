@@ -31,19 +31,37 @@ const Profile = ({ route }) => {
   }, [])
 
   const onPressChangeName = () => {
-    navigation.navigate('ChangeNameScreen')
+    navigation.navigate('ChangeNameScreen', {
+      userId: userId,
+      currentName: name,
+    })
     console.log('Abrir Editar Nome')
     console.log()
   }
 
   const onPressChangeEmail = () => {
-    navigation.navigate('ChangeEmail')
+    navigation.navigate('ChangeEmail', {
+      userId: userId,
+      currentEmail: userEmail,
+    })
     console.log('Abrir Editar Email')
   }
 
   const onPressChangePassword = () => {
     navigation.navigate('ChangePassword')
     console.log('Abrir Editar Senha')
+  }
+
+  const formatEmailForDisplay = (email) => {
+    if (email.includes('@') && email.length > 26) {
+      const atIndex = email.indexOf('@') // Encontre a posição do "@"
+      const prefix = email.substring(0, atIndex)
+      const suffix = email.substring(atIndex) // Mantenha o "@" e o restante do e-mail
+      const displayedEmail = `${prefix.substring(0, 13)}...${suffix}`
+      return displayedEmail
+    } else {
+      return email
+    }
   }
 
   return (
@@ -57,7 +75,7 @@ const Profile = ({ route }) => {
       />
       <Image
         source={{
-          uri: 'https://picsum.photos/200/320',
+          uri: 'https://picsum.photos/300/310',
         }}
         style={styles.profileImage}
       />
@@ -74,7 +92,8 @@ const Profile = ({ route }) => {
       <Pressable style={styles.changeEmail} onPress={onPressChangeEmail}>
         <Text style={styles.textBold}>Alterar E-mail</Text>
         <Text>
-          {userEmail} <AntDesign name="right" size={12} />
+          {formatEmailForDisplay(userEmail)}
+          <AntDesign name="right" size={12} />
         </Text>
       </Pressable>
       <Pressable style={styles.changePassword} onPress={onPressChangePassword}>

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useState, useEffect } from 'react'
 import { AntDesign } from '@expo/vector-icons'
 import {
   StyleSheet,
@@ -7,10 +7,28 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
+import { useRoute, useNavigation } from '@react-navigation/native'
+import {
+  readUser,
+  updateUserName,
+} from '../../../backend/user-config/user-service'
 
-const ChangeNameScreen = () => {
+const ChangeNameScreen = ({ route }) => {
   const navigation = useNavigation()
+
+  const { userId } = route.params
+  const currentName = route.params?.currentName || ''
+
+  const [newName, setNewName] = useState(currentName)
+
+  const handleConfirm = async () => {
+    try {
+      await updateUserName(userId, newName)
+      navigation.goBack()
+    } catch (error) {
+      console.error('Erro ao atualizar o nome:', error)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -25,11 +43,15 @@ const ChangeNameScreen = () => {
       <Text style={[styles.title]}>Insira seu primeiro nome</Text>
 
       <View style={styles.inputContainer}>
-        <TextInput value={`Seu nome`} style={styles.input} />
+        <TextInput
+          value={newName}
+          onChangeText={(text) => setNewName(text)}
+          style={styles.input}
+        />
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleConfirm}>
           <Text style={styles.buttonText}>Confirmar</Text>
         </TouchableOpacity>
       </View>
