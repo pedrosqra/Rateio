@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
-const ChangeFirstNameScreen = () => {
+const ChangeNameScreen = () => {
   const navigation = useNavigation()
 
   return (
@@ -104,4 +104,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default ChangeFirstNameScreen
+export default ChangeNameScreen
