@@ -3,25 +3,25 @@ import {ActivityIndicator, Text, TextInput, TouchableOpacity, View} from 'react-
 import {useNavigation} from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
 
-import { DateTimeInput } from '../../components/DateTimeInput';
+import {DateTimeInput} from '../../components/DateTimeInput';
 
 import {getUsers} from '../../../backend/user-config/user-service';
 import {createGroupWithSharedDebt} from '../../../backend/group-config/group-service';
 import {styles} from './CreateGroupScreenStyles';
 
 import * as Notifications from "expo-notifications";
-import { useLocalNotification } from "../../resources/useNotifications";
-import { schedulePushNotification } from "../../utils/handleNotification";
+import {useLocalNotification} from "../../resources/useNotifications";
+import {schedulePushNotification} from "../../utils/handleNotification";
 
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false
-  })
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false
+    })
 });
 
-function CreateGroupScreen({ route }) {
+function CreateGroupScreen({route}) {
     const adminUserId = route.params.uid;
     const navigation = useNavigation();
 
@@ -66,8 +66,6 @@ function CreateGroupScreen({ route }) {
             const currentDate = new Date()
 
             const seconds = (dateLimit.getTime() - currentDate.getTime()) / 1000;
-
-            console.log(seconds)
 
             handleLocalPushNotification(groupName, seconds)
         }
