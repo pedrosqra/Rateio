@@ -48,6 +48,31 @@ const readUser = async (userId) => {
   }
 }
 
+const updateUser = async (userId: string, newEmail?: string, newName?: string, newPix?: string) => {
+    try {
+        const userIdExists = await checkUserIdExists(user.userId);
+
+        if (!userIdExists) {
+            console.error('User does not exists');
+            return;
+        }
+
+        if (typeof newEmail !== 'undefined') {
+            await firestoreUpdateDoc(userDocument(userId), {email: newEmail});
+        }
+        if (typeof newName !== 'undefined') {
+            await firestoreUpdateDoc(userDocument(userId), {name: newName});
+        }
+        if (typeof newPix !== 'undefined') {
+            await firestoreUpdateDoc(userDocument(userId), {pix: newPix});
+        }
+        console.log('User updated successfully');
+
+    } catch (error) {
+        console.error('Error updating user:', error);
+    }
+};
+
 const checkUserIdExists = async (userId) => {
   const userSnapshot = await firestoreGetDoc(userDocument(userId))
   return userSnapshot.exists()
