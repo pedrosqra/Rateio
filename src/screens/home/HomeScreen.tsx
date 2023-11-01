@@ -1,11 +1,10 @@
 import React, {useState} from 'react';
-import {ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
-
+import {ActivityIndicator, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {DocumentData} from 'firebase/firestore';
 import {readUser, signOut} from '../../../backend/user-config/user-service';
-import {getDebtsForUser, getGroups} from '../../../backend/group-config/group-service';
+import {addUserToGroup, getDebtsForUser, getGroupId, getGroups} from '../../../backend/group-config/group-service';
 
 import styles from './HomeScreenStyles';
 import {Props} from './types';
@@ -13,12 +12,15 @@ import {Props} from './types';
 const HomeScreen = ({ route }: Props) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
+    const [userEmail, setUserEmail] = useState('');
     const [groups, setGroups] = useState<DocumentData[]>([]);
     const navigation = useNavigation();
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
     const [isLoading, setIsLoading] = useState(true); // Add a loading state
     const [refreshKey, setRefreshKey] = useState(0);
+    const [invite, setInvite] = useState('');
+    const [isModalVisible, setModalVisible] = useState(false);
 
     const refreshData = () => {
         setRefreshKey(prevKey => prevKey + 1);
@@ -29,9 +31,24 @@ const HomeScreen = ({ route }: Props) => {
         group.name.toLowerCase().includes(searchText.toLowerCase())
     );
 
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+
+    };
+
     const onPressAdicionarGrupo = () => {
         navigation.navigate('CreateGroup', {uid, refreshData});
         console.log('Criando grupo');
+    };
+
+    const onPressJoinAGroupWithCode = async () => {
+        const code = invite.replace(/[^0-9]/g, '');
+        const groupId = await getGroupId(code);
+        console.log(userEmail)
+        addUserToGroup(groupId, userEmail);
+        console.log('Entrando no grupo de codigo: ', code, groupId);
+        setRefreshKey(refreshKey + 1);
+        setModalVisible(false);
     };
 
 
@@ -42,8 +59,9 @@ const HomeScreen = ({ route }: Props) => {
     const fetchUserDataAndGroups = async () => {
         try {
             const userData = await readUser(uid);
-            if (userData && userData.name) {
+            if (userData && userData.name && userData.email) {
                 setUserName(userData.name);
+                setUserEmail(userData.email);
             }
 
             // Fetch the list of groups
@@ -61,6 +79,7 @@ const HomeScreen = ({ route }: Props) => {
             setIsLoading(false); // Ensure loading state is set to false
         }
     };
+
 
     const fetchUserDebts = async () => {
         try {
@@ -82,6 +101,7 @@ const HomeScreen = ({ route }: Props) => {
             // Fetch user debts and groups
             Promise.all([fetchUserDebts(), fetchUserDataAndGroups()]);
             console.log('leitura HOME')
+
         }, [route.params, refreshKey]) // Remova groups daqui
     );
 
@@ -98,6 +118,7 @@ const HomeScreen = ({ route }: Props) => {
             console.error('Error logging out:', error);
         }
     };
+
 
     return (
         <View style={styles.container}>
@@ -130,8 +151,16 @@ const HomeScreen = ({ route }: Props) => {
                 />
             </View>
 
-            <View style={styles.groupListTitleView}>
+            <View style={styles.groupListHeaderView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
+                <View style={styles.refreshButtonContainer}>
+                    <TouchableOpacity
+                        style={styles.refreshButton}
+                        onPress={refreshData}
+                    >
+                        <Ionicons name="refresh-outline" size={24} color="white"/>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {isLoading ? (
@@ -166,11 +195,51 @@ const HomeScreen = ({ route }: Props) => {
                 </ScrollView>
             )}
             <View style={styles.addGroupButtonView}>
+                <TouchableOpacity onPress={toggleModal} style={styles.addGroupButton}>
+                    <Ionicons name="people" size={28} color="white" style={styles.addIcon}/>
+                    <Text style={styles.addText}>Entrar</Text>
+                </TouchableOpacity>
+
                 <TouchableOpacity onPress={onPressAdicionarGrupo} style={styles.addGroupButton}>
                     <Ionicons name="add-circle-outline" size={28} color="white" style={styles.addIcon}/>
-                    <Text style={styles.addText}>Adicionar novo grupo</Text>
+                    <Text style={styles.addText}>Criar</Text>
                 </TouchableOpacity>
             </View>
+
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={toggleModal}
+            >
+                <View style={styles.modalContainer}>
+                    <Text style={styles.modalTitle}>Digite o convite</Text>
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            value={invite}
+                            style={styles.input}
+                            placeholder="0000"
+                            placeholderTextColor={'#ccc'}
+                            autoCapitalize="none"
+                            keyboardType="decimal-pad"
+                            onChangeText={(text) => setInvite(text)}
+                        />
+                    </View>
+                    <TouchableOpacity
+                        onPress={onPressJoinAGroupWithCode}
+                        style={styles.modalButton}>
+                        <Text style={styles.confirmButtonText}>Confirmar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.modalButton}
+                        onPress={toggleModal}
+                    >
+                        <Text style={styles.buttonText}>Fechar</Text>
+                    </TouchableOpacity>
+
+                </View>
+            </Modal>
         </View>
     );
 };

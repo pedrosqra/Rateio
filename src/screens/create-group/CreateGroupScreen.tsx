@@ -25,9 +25,9 @@ function CreateGroupScreen({ route }) {
     const adminUserId = route.params.uid;
     const navigation = useNavigation();
 
-    const [groupName, setGroupName] = useState('');
-    const [pix, setPix] = useState('');
-    const [total, setTotal] = useState('');
+    const [groupName, setGroupName] = useState('----');
+    const [pix, setPix] = useState('------------');
+    const [total, setTotal] = useState('0,00');
     const [date, setDate] = useState('');
     const [participants, setParticipants] = useState([]);
     const [users, setUsers] = useState([]);
@@ -77,7 +77,6 @@ function CreateGroupScreen({ route }) {
         // Delayed navigation or any other actions
 
         setTimeout(() => {
-            // Set creatingGroup back to false to hide the ActivityIndicator
             setCreatingGroup(false);
             navigation.goBack();
         }, 1500);

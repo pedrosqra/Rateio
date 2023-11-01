@@ -1,12 +1,17 @@
 import {StyleSheet} from 'react-native';
 
 export const styles = StyleSheet.create({
-    container: {
+    containerScroll: {
         flex: 1,
+        paddingVertical: 25,
+        backgroundColor: '#373B3F', // Define the background color
+    },
+    container: {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#373B3F', // Define a cor de fundo azul
-        paddingHorizontal: 25
+        paddingHorizontal: 25,
+        paddingVertical: 25,
     },
     participantsButton: {
         backgroundColor: '#FFF', // Cor de fundo branca
@@ -127,8 +132,16 @@ export const styles = StyleSheet.create({
     copy: {
         margin: 10,
     },
+    scrollView: {
+        width: '100%',
+    },
+    scrollContent: {
+        // Ensure content fills the entire ScrollView
+        minHeight: '100%',
+    },
     participantInfo: {
         flexDirection: 'row',
+        marginBottom: 10, // Add margin between list items
         justifyContent: 'space-between',
         alignItems: 'center'
     },
@@ -158,6 +171,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 25,
+        marginBottom: 25,
         borderRadius: 10
     },
     buttonText: {
