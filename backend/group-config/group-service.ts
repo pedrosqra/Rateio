@@ -126,7 +126,6 @@ const createGroupWithSharedDebt = async (
             }
         }
 
-        console.log("convite:",groupInvite);
         console.log("Group created with shared debt successfully");
         return newGroupId;
     } catch (error) {
@@ -248,7 +247,6 @@ const getGroupById = async (groupId: string) => {
         return null;
     }
 };
-
 
 
 // Function to update a group's fields

@@ -54,7 +54,6 @@ async function main() {
         await sleep(5000);
 
         const updatedGroup = await getGroupById(groupId);
-        console.log('Updated Group:', updatedGroup);
     } catch (error) {
         console.error('Test error:', error);
     }

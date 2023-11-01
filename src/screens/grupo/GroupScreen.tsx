@@ -53,24 +53,24 @@ const ConfirmDialog = ({visible, message, onConfirm, onCancel}) => {
     );
 };
 
-const ConfirmRemoveUserDialog = ({ visible, message, onConfirm, onCancel }) => {
-  return (
-    <Modal animationType="slide" transparent={true} visible={visible}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#1CC29F" }}>
-        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
-          <Text>{message}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
-            <TouchableOpacity onPress={onConfirm}>
-              <Text>Confirmar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onCancel}>
-              <Text>Cancelar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
+const ConfirmRemoveUserDialog = ({visible, message, onConfirm, onCancel}) => {
+    return (
+        <Modal animationType="slide" transparent={true} visible={visible}>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#1CC29F"}}>
+                <View style={{backgroundColor: 'white', padding: 20, borderRadius: 10}}>
+                    <Text>{message}</Text>
+                    <View style={{flexDirection: 'row', justifyContent: 'space-around', marginTop: 20}}>
+                        <TouchableOpacity onPress={onConfirm}>
+                            <Text>Confirmar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={onCancel}>
+                            <Text>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+    );
 };
 
 
@@ -108,7 +108,6 @@ const GroupScreen = ({navigation, route}: Props) => {
                 });
 
                 setDebts(debtMap);
-                console.log(debtMap)
             } catch (error) {
                 console.error('Error fetching group debts:', error);
             }
@@ -265,7 +264,7 @@ const GroupScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleRemoveMember = async (userId: string) => {   
+    const handleRemoveMember = async (userId: string) => {
         setUserIdToRemove(userId);
         setShowRemoveUserDialog(true);
     };
@@ -275,7 +274,6 @@ const GroupScreen = ({navigation, route}: Props) => {
     };
 
     const handleConfirmRemoveUser = async () => {
-        console.log(userIdToRemove, groupData.adminId, userAdminId)
         if (groupData.adminId === userAdminId) {
             setShowActivityIndicator(true);
             try {
@@ -285,7 +283,7 @@ const GroupScreen = ({navigation, route}: Props) => {
                 console.error('Error removing user:', error);
             }
             setShowActivityIndicator(false);
-        } 
+        }
         setShowRemoveUserDialog(false);
         navigation.goBack()
     };
