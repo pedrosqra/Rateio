@@ -53,6 +53,27 @@ const ConfirmDialog = ({visible, message, onConfirm, onCancel}) => {
     );
 };
 
+const ConfirmRemoveUserDialog = ({ visible, message, onConfirm, onCancel }) => {
+  return (
+    <Modal animationType="slide" transparent={true} visible={visible}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#1CC29F" }}>
+        <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}>
+          <Text>{message}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
+            <TouchableOpacity onPress={onConfirm}>
+              <Text>Confirmar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onCancel}>
+              <Text>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+
 const GroupScreen = ({navigation, route}: Props) => {
     const groupId = route.params.groupId;
     const userAdminId = route.params.uid;
@@ -68,8 +89,11 @@ const GroupScreen = ({navigation, route}: Props) => {
     const [debts, setDebts] = useState<Map<string, DocumentData>>(new Map());
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+    const [showRemoveUserDialog, setShowRemoveUserDialog] = useState(false);
     const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
     const [showActivityIndicator, setShowActivityIndicator] = useState(false);
+    const [userIdToRemove, setUserIdToRemove] = useState('');
+
 
     useEffect(() => {
 
@@ -241,22 +265,33 @@ const GroupScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleRemoveMember = async (userId: string) => {
-        console.log(userId, groupData.adminId, userAdminId)
+    const handleRemoveMember = async (userId: string) => {   
+        setUserIdToRemove(userId);
+        setShowRemoveUserDialog(true);
+    };
+
+    const copyToClipboard = async (text) => {
+        await Clipboard.setStringAsync(text);
+    };
+
+    const handleConfirmRemoveUser = async () => {
+        console.log(userIdToRemove, groupData.adminId, userAdminId)
         if (groupData.adminId === userAdminId) {
             setShowActivityIndicator(true);
             try {
-                await deleteUserFromGroup(groupId, userId);
+                await deleteUserFromGroup(groupId, userIdToRemove);
                 updateGroupData();
             } catch (error) {
                 console.error('Error removing user:', error);
             }
             setShowActivityIndicator(false);
-        }
+        } 
+        setShowRemoveUserDialog(false);
+        navigation.goBack()
     };
 
-    const copyToClipboard = async (text) => {
-        await Clipboard.setStringAsync(text);
+    const handleCancelRemoveUser = () => {
+        setShowRemoveUserDialog(false);
     };
 
     return (
@@ -439,6 +474,12 @@ const GroupScreen = ({navigation, route}: Props) => {
                                     message={confirmDialogMessage}
                                     onConfirm={handleConfirmDeleteGroup}
                                     onCancel={handleCancelDeleteGroup}
+                                />
+                                <ConfirmRemoveUserDialog
+                                    visible={showRemoveUserDialog}
+                                    message="Tem certeza que quer remover o participante?"
+                                    onConfirm={handleConfirmRemoveUser}
+                                    onCancel={handleCancelRemoveUser}
                                 />
                             </>)}
                     </>
