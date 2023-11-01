@@ -87,6 +87,25 @@ const HomeScreen = ({ route }: Props) => {
         userData?.groups ? userData.groups.includes(group.groupId) : []
       )
 
+      const onPressProfile = () => {
+        navigation.navigate('Profile', { userId: uid })
+        console.log('Abrir Perfil')
+      }
+
+      const onPressJoinAGroupWithCode = async () => {
+        const code = invite.replace(/[^0-9]/g, '')
+        const groupId = await getGroupId(code)
+        console.log(userEmail)
+        addUserToGroup(groupId, userEmail)
+        console.log('Entrando no grupo de codigo: ', code, groupId)
+        setRefreshKey(refreshKey + 1)
+        setModalVisible(false)
+      }
+
+      const navigateToGroup = (groupId: string) => {
+        navigation.navigate('GroupScreen', { groupId, uid })
+      }
+
       setGroups(userGroupsData)
     } catch (error) {
       console.error('Error fetching user data and groups:', error)
@@ -135,7 +154,10 @@ const HomeScreen = ({ route }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.profileContent}>
+        <TouchableOpacity
+          style={styles.profileContent}
+          onPress={onPressProfile}
+        >
           <Image
             source={{
               uri: 'https://picsum.photos/300/310',
@@ -149,7 +171,7 @@ const HomeScreen = ({ route }: Props) => {
           ) : (
             <Text style={styles.profileName}>{userName}</Text>
           )}
-        </View>
+        </TouchableOpacity>
         <View style={styles.notificationContent}>
           <Ionicons name="notifications-outline" size={28} color="white" />
         </View>
