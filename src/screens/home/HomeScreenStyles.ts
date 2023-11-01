@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-        marginTop: 10,
+
     },
     profileContent: {
         flexDirection: 'row',
@@ -67,11 +67,46 @@ const styles = StyleSheet.create({
         width: '100%',
         color: 'black',
     },
-
+    inputContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '70%',
+        height: 60,
+        backgroundColor: '#373B3F',
+        padding: 10,
+        borderRadius: 8,
+        borderColor: '#373B3F',
+        borderWidth: 1,
+        marginBottom: 60,
+        color: 'white',
+    },
+    input: {
+        width: '100%',
+        height: 50,
+        backgroundColor: '#373B3F',
+        padding: 10,
+        borderRadius: 8,
+        borderColor: 'transparent',
+        borderWidth: 1,
+        color: 'white',
+        fontSize: 20,
+        paddingHorizontal: 24,
+        textAlign: 'center',
+    },
+    groupListHeaderView: {
+        backgroundColor: '#373B3F',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginLeft: 19,
+        color: '#1CC29F',
+        width: '100%',
+    },
+    refreshButtonContainer: {
+        width: '20%',
+    },
     groupListTitleView: {
         backgroundColor: '#373B3F',
         paddingHorizontal: 20,
-        paddingVertical: 10,
         flexDirection: 'row', // Para ocupar toda a largura
         alignItems: 'flex-start', // Alinhar ao início da tela (à esquerda)
         justifyContent: 'flex-start',
@@ -81,9 +116,9 @@ const styles = StyleSheet.create({
         fontSize: 23,
         color: 'white',
         fontWeight: 'bold',
-        marginBottom: 10,
-        marginTop: 10,
-        minWidth: 80
+
+        minWidth: 80,
+        marginLeft: 11,
     },
     groupImageContainer: {
         marginRight: 10,
@@ -147,19 +182,22 @@ const styles = StyleSheet.create({
     },
     addGroupButtonView: {
         alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
+        justifyContent: 'space-between',
+        width: '95%',
         paddingHorizontal: 20,
         paddingVertical: 10,
+        flexDirection: 'row',
+
     },
     addGroupButton: {
         flexDirection: 'row',
         backgroundColor: '#1CC29F',
         padding: 12,
         borderRadius: 10,
-        marginTop: 10,
         marginBottom: 10,
-        width: '100%',
+        width: '45%',
+        alignItems: 'center',
+
     },
     addIcon: {
         marginRight: 10, // Espaço entre o ícone e o texto
@@ -168,6 +206,58 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#373B3F',
         fontWeight: 'bold',
+    },
+    buttonText: {
+        fontSize: 16,
+        color: "#d73018",
+        fontWeight: 'bold'
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: '#1CC29F', // Fundo escuro semi-transparente
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: '#333', // Cor de fundo escura
+        padding: 20,
+        borderRadius: 5,
+        width: '100%',
+    },
+    modalTitle: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 30,
+        color: '#FFF', // Cor do texto claro
+    },
+    modalItem: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginVertical: 5,
+        color: '#FFF', // Cor do texto claro
+    },
+    modalButton: {
+        backgroundColor: '#FFF',
+        padding: 10,
+        borderRadius: 8,
+        width: '90%',
+        height: 45,
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    refreshButton: {
+        backgroundColor: '#373B3F',
+        padding: 10,
+        borderRadius: 8,
+        width: '90%',
+        height: 45,
+        alignItems: 'center',
+        marginBottom: 30,
+    },
+    confirmButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1CC29F', // Cor do texto verde
     },
 
 });
