@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {ActivityIndicator, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {CommonActions, useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -9,18 +9,12 @@ import {addUserToGroup, getDebtsForUser, getGroupId, getGroups} from '../../../b
 import styles from './HomeScreenStyles';
 import {Props} from './types';
 
-const HomeScreen = ({
-                        route
-                    }: Props) => {
+const HomeScreen = ({ route }: Props) => {
     const {uid} = route.params;
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [groups, setGroups] = useState<DocumentData[]>([]);
     const navigation = useNavigation();
-    const [expoPushToken, setExpoPushToken] = useState<any>('');
-    const [notification, setNotification] = useState<any>();
-    const notificationListener = useRef<any>();
-    const responseListener = useRef<any>();
     const [userDebts, setUserDebts] = useState<Map<string, number>>(new Map());
     const [searchText, setSearchText] = useState('');
     const [isLoading, setIsLoading] = useState(true); // Add a loading state

@@ -56,7 +56,7 @@ const createGroupWithSharedDebt = async (
     adminPix: string,
     sharedDebtAmount: number,
     divisionMethod: string,
-    members: string[]
+    members: string[],
 ) => {
     try {
         // Step 1: Create the group
@@ -125,7 +125,7 @@ const createGroupWithSharedDebt = async (
                 console.log('Admin added to the group and updated successfully');
             }
         }
-        
+
         console.log("convite:",groupInvite);
         console.log("Group created with shared debt successfully");
         return newGroupId;
@@ -203,7 +203,7 @@ const getGroupInvites = async () => {
 const getGroupId = async (code) => {
     const snapshot = await getDocs(groupsCollection);
     const matchingGroup = snapshot.docs.find(doc => doc.data().groupIdInvite == code);
-  
+
     // Check if a matching group was found
     if (matchingGroup) {
         const result = matchingGroup.data().groupId;
