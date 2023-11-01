@@ -41,7 +41,7 @@ const createGroupWithSharedDebt = async (
     adminPix: string,
     sharedDebtAmount: number,
     divisionMethod: string,
-    members: string[]
+    members: string[],
 ) => {
     try {
         // Step 1: Create the group

@@ -3,23 +3,45 @@ import {ActivityIndicator, Text, TextInput, TouchableOpacity, View} from 'react-
 import {useNavigation} from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
 
+import { DateTimeInput } from '../../components/DateTimeInput';
+
 import {getUsers} from '../../../backend/user-config/user-service';
 import {createGroupWithSharedDebt} from '../../../backend/group-config/group-service';
 import {styles} from './CreateGroupScreenStyles';
 
-function CreateGroupScreen({route}) {
+import * as Notifications from "expo-notifications";
+import { useLocalNotification } from "../../resources/useNotifications";
+import { schedulePushNotification } from "../../utils/handleNotification";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false
+  })
+});
+
+function CreateGroupScreen({ route }) {
     const adminUserId = route.params.uid;
     const navigation = useNavigation();
 
     const [groupName, setGroupName] = useState('');
     const [pix, setPix] = useState('');
     const [total, setTotal] = useState('');
+    const [date, setDate] = useState('');
     const [participants, setParticipants] = useState([]);
     const [users, setUsers] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
 
     // New state variable to track group creation in progress
     const [creatingGroup, setCreatingGroup] = useState(false);
+
+    // Notifications
+    useLocalNotification()
+
+    const handleLocalPushNotification = async (groupName: string, trigger: number) => {
+        await schedulePushNotification(groupName, trigger);
+    };
 
     useEffect(() => {
         loadUsers();
@@ -35,7 +57,21 @@ function CreateGroupScreen({route}) {
         // Set creatingGroup to true to show the ActivityIndicator
         setCreatingGroup(true);
 
-        await createGroupWithSharedDebt(groupName, adminUserId, pix, total, 'equals', participants);
+        const groupId = await createGroupWithSharedDebt(groupName, adminUserId, pix, total, 'equals', participants);
+
+        if (groupId) {
+            // Group was created, scheduling notification
+            const [day, month, year] = date.split(' / ')
+            const dateLimit = new Date(Number(year), Number(month) - 1, Number(day), 10)
+            const currentDate = new Date()
+
+            const seconds = (dateLimit.getTime() - currentDate.getTime()) / 1000;
+
+            console.log(seconds)
+
+            handleLocalPushNotification(groupName, seconds)
+        }
+
         route.params.refreshData();
 
         // Delayed navigation or any other actions
@@ -46,6 +82,15 @@ function CreateGroupScreen({route}) {
             navigation.goBack();
         }, 1500);
     };
+
+    const getMinimumDate = () => {
+        var dataAtual = new Date();
+
+        var diaAtual = dataAtual.getDate();
+        dataAtual.setDate(diaAtual + 1);
+
+        return dataAtual
+    }
 
     return (
         <View style={styles.container}>
@@ -84,6 +129,13 @@ function CreateGroupScreen({route}) {
                 value={total}
                 onChangeText={(text) => setTotal(text)}
                 keyboardType="numeric"
+            />
+
+            <Text style={styles.label}>Vencimento</Text>
+            <DateTimeInput
+                value={date}
+                setValue={(date) => setDate(date)}
+                minimumDate={getMinimumDate()}
             />
 
             <TouchableOpacity style={styles.createButton} onPress={createGroupThenBackHome}>
