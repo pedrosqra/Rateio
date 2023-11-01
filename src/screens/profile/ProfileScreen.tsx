@@ -33,6 +33,11 @@ const Profile = ({ route }) => {
     }, [userId])
   )
 
+  const onPressExpenseHistory = () => {
+    navigation.navigate('History', { userId: userId })
+    console.log('Abrir Histórico de Despesas')
+  }
+
   const onPressChangeName = () => {
     navigation.navigate('ChangeNameScreen', {
       userId: userId,
@@ -123,7 +128,7 @@ const Profile = ({ route }) => {
         }}
         style={styles.profileImage}
       />
-      <Pressable style={styles.expenseHistory}>
+      <Pressable style={styles.expenseHistory} onPress={onPressExpenseHistory}>
         <Text style={styles.textBold}>Meu histórico de despesas</Text>
         <AntDesign name="right" size={12} />
       </Pressable>
