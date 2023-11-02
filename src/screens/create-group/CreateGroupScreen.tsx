@@ -1,11 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {ActivityIndicator, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
 
 import {DateTimeInput} from '../../components/DateTimeInput';
-
-import {getUsers} from '../../../backend/user-config/user-service';
 import {createGroupWithSharedDebt} from '../../../backend/group-config/group-service';
 import {styles} from './CreateGroupScreenStyles';
 
@@ -30,8 +28,6 @@ function CreateGroupScreen({route}) {
     const [total, setTotal] = useState('0,00');
     const [date, setDate] = useState('');
     const [participants, setParticipants] = useState([]);
-    const [users, setUsers] = useState([]);
-    const [isModalVisible, setModalVisible] = useState(false);
 
     // New state variable to track group creation in progress
     const [creatingGroup, setCreatingGroup] = useState(false);
@@ -41,16 +37,6 @@ function CreateGroupScreen({route}) {
 
     const handleLocalPushNotification = async (groupName: string, trigger: number) => {
         await schedulePushNotification(groupName, trigger);
-    };
-
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
-    const loadUsers = async () => {
-        const userList = await getUsers();
-        const userListWithoutAdmin = userList.filter((user) => user.userId !== adminUserId);
-        setUsers(userListWithoutAdmin);
     };
 
     const createGroupThenBackHome = async () => {

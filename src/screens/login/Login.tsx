@@ -24,8 +24,8 @@ const Login = () => {
 
         try {
             const response = await login(email, password);
-            if (!response) {
-                alert('An error occurred while logging in. Please check your email and password.');
+            if (!response.uid) {
+                alert('Ocorreu um erro ao fazer login. Por favor verifique email e senha.');
             } else {
                 setPersonalData(response.user);
                 navigation.dispatch(

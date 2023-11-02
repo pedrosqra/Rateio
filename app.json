@@ -21,7 +21,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#373B3F"
-      }
+      },
+      "package": "com.lucassqra.Rateio"
     },
     "web": {
       "favicon": "./assets/adaptive-icon.png"
