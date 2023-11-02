@@ -24,9 +24,6 @@ const Login = () => {
 
         try {
             const response = await login(email, password);
-            console.log("==========================")
-            console.log(response)
-            console.log("==========================")
             if (!response.uid) {
                 alert('Ocorreu um erro ao fazer login. Por favor verifique email e senha.');
             } else {
