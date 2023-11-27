@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
-import {ActivityIndicator, Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View,} from 'react-native'
+import {ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View,} from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import {CommonActions, useFocusEffect, useNavigation,} from '@react-navigation/native'
 import {DocumentData} from 'firebase/firestore'
 import {readUser, signOut} from '../../../backend/user-config/user-service'
-import {addUserToGroup, getDebtsForUser, getGroupId, getGroups,} from '../../../backend/group-config/group-service'
+import {getDebtsForUser, getGroups,} from '../../../backend/group-config/group-service'
 
 import styles from './HomeScreenStyles'
 import {Props} from './types'
@@ -39,13 +39,9 @@ const HomeScreen = ({route}: Props) => {
         console.log('Criando grupo')
     }
 
-    const onPressJoinAGroupWithCode = async () => {
-        const code = invite.replace(/[^0-9]/g, '')
-        const groupId = await getGroupId(code)
-        addUserToGroup(groupId, userEmail)
-        console.log('Entrando no grupo de codigo: ', code, groupId)
-        setRefreshKey(refreshKey + 1)
-        setModalVisible(false)
+    const onPressJoinGroupPage = () => {
+        navigation.navigate('JoinGroup', {userEmail, refreshData})
+        console.log('Entrando em grupo: ', userEmail)
     }
 
     const onPressProfile = () => {
@@ -155,11 +151,6 @@ const HomeScreen = ({route}: Props) => {
 
             <View style={styles.groupListHeaderView}>
                 <Text style={styles.groupsListTitle}>Grupos</Text>
-                <View style={styles.refreshButtonContainer}>
-                    <TouchableOpacity style={styles.refreshButton} onPress={refreshData}>
-                        <Ionicons name="refresh-outline" size={24} color="white"/>
-                    </TouchableOpacity>
-                </View>
             </View>
 
             {isLoading ? (
@@ -194,7 +185,7 @@ const HomeScreen = ({route}: Props) => {
                 </ScrollView>
             )}
             <View style={styles.addGroupButtonView}>
-                <TouchableOpacity onPress={toggleModal} style={styles.addGroupButton}>
+                <TouchableOpacity onPress={onPressJoinGroupPage} style={styles.addGroupButton}>
                     <Ionicons
                         name="people"
                         size={28}
@@ -217,37 +208,6 @@ const HomeScreen = ({route}: Props) => {
                     <Text style={styles.addText}>Criar</Text>
                 </TouchableOpacity>
             </View>
-
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isModalVisible}
-                onRequestClose={toggleModal}
-            >
-                <View style={styles.modalContainer}>
-                    <Text style={styles.modalTitle}>Digite o convite</Text>
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            value={invite}
-                            style={styles.input}
-                            placeholder="0000"
-                            placeholderTextColor={'#ccc'}
-                            autoCapitalize="none"
-                            keyboardType="decimal-pad"
-                            onChangeText={(text) => setInvite(text)}
-                        />
-                    </View>
-                    <TouchableOpacity
-                        onPress={onPressJoinAGroupWithCode}
-                        style={styles.modalButton}
-                    >
-                        <Text style={styles.confirmButtonText}>Confirmar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.modalButton} onPress={toggleModal}>
-                        <Text style={styles.buttonText}>Fechar</Text>
-                    </TouchableOpacity>
-                </View>
-            </Modal>
         </View>
     )
 }

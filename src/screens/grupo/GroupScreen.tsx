@@ -321,7 +321,8 @@ const GroupScreen = ({navigation, route}: Props) => {
                             >
                                 <Text style={styles.textBold}>Nome do grupo</Text>
                                 <View style={styles.innerGroup}>
-                                    <Text style={styles.text}>{groupData?.name}</Text>
+                                    <Text style={styles.text} numberOfLines={2}
+                                          ellipsizeMode={"tail"}>{groupData?.name}</Text>
                                 </View>
                             </Pressable>
                             <Pressable
@@ -331,7 +332,8 @@ const GroupScreen = ({navigation, route}: Props) => {
                                 <TouchableOpacity onPress={() => copyToClipboard(groupData?.adminPix)}>
                                     <View style={styles.innerGroup}>
                                         <Feather style={styles.copy} name="copy" size={16}/>
-                                        <Text style={styles.text}>{groupData?.adminPix}</Text>
+                                        <Text style={styles.text} numberOfLines={1}
+                                              ellipsizeMode={"tail"}>{groupData?.adminPix}</Text>
                                     </View>
                                 </TouchableOpacity>
                             </Pressable>
@@ -340,7 +342,8 @@ const GroupScreen = ({navigation, route}: Props) => {
                             >
                                 <Text style={styles.textBold}>Valor Total</Text>
                                 <View style={styles.innerGroup}>
-                                    <Text style={styles.text}>R$: {groupData?.debtAmount}</Text>
+                                    <Text style={styles.text} numberOfLines={1}
+                                          ellipsizeMode={"tail"}>R$: {groupData?.debtAmount}</Text>
                                 </View>
                             </Pressable>
                             <Pressable
@@ -380,7 +383,8 @@ const GroupScreen = ({navigation, route}: Props) => {
                                                         style={styles.participantImage}
                                                     />
                                                     <Text
-                                                        style={styles.participantName}>{participantNames[index]}</Text>
+                                                        style={styles.participantName} ellipsizeMode={"tail"}
+                                                        numberOfLines={1}>{participantNames[index]}</Text>
                                                 </View>
                                                 <View style={styles.actionButtons}>
                                                     <TouchableOpacity

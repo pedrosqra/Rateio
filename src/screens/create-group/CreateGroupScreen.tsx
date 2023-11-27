@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {ActivityIndicator, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {TextInputMask} from 'react-native-masked-text';
 import {useNavigation} from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
 
@@ -23,9 +24,9 @@ function CreateGroupScreen({route}) {
     const adminUserId = route.params.uid;
     const navigation = useNavigation();
 
-    const [groupName, setGroupName] = useState('----');
-    const [pix, setPix] = useState('------------');
-    const [total, setTotal] = useState('0,00');
+    const [groupName, setGroupName] = useState('');
+    const [pix, setPix] = useState('');
+    const [total, setTotal] = useState('');
     const [date, setDate] = useState('');
     const [participants, setParticipants] = useState([]);
 
@@ -92,7 +93,7 @@ function CreateGroupScreen({route}) {
             <Text style={styles.label}>Nome do Grupo</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Digite o nome do grupo"
+                placeholder="Nome do grupo"
                 value={groupName}
                 onChangeText={(text) => setGroupName(text)}
             />
@@ -100,17 +101,27 @@ function CreateGroupScreen({route}) {
             <Text style={styles.label}>PIX</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Digite a chave PIX do grupo"
+                placeholder="Chave PIX do grupo"
                 value={pix}
                 onChangeText={(text) => setPix(text)}
             />
 
             <Text style={styles.label}>Valor Total</Text>
-            <TextInput
+            <TextInputMask
                 style={styles.input}
-                placeholder="Digite o valor a ser dividido"
+                placeholder="Valor a ser dividido"
+                type={'money'}
+                options={{
+                    precision: 2,
+                    separator: ',',
+                    delimiter: '.',
+                    unit: 'R$',
+                    suffixUnit: '',
+                }}
                 value={total}
-                onChangeText={(text) => setTotal(text)}
+                onChangeText={(formatted, raw) => {
+                    setTotal(raw);
+                }}
                 keyboardType="numeric"
             />
 

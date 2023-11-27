@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
         padding: 10,
     },
     headerText: {
-        fontSize: 25,
+        fontSize: 30,
         fontWeight: 'bold',
         color: '#FFF', // Cor do texto branco,
         marginTop: 100,

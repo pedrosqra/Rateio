@@ -101,9 +101,6 @@ const styles = StyleSheet.create({
         color: '#1CC29F',
         width: '100%',
     },
-    refreshButtonContainer: {
-        width: '20%',
-    },
     groupListTitleView: {
         backgroundColor: '#373B3F',
         paddingHorizontal: 20,
@@ -116,9 +113,9 @@ const styles = StyleSheet.create({
         fontSize: 23,
         color: 'white',
         fontWeight: 'bold',
-
         minWidth: 80,
         marginLeft: 11,
+        marginBottom: 20
     },
     groupImageContainer: {
         marginRight: 10,
@@ -244,15 +241,6 @@ const styles = StyleSheet.create({
         height: 45,
         alignItems: 'center',
         marginBottom: 10,
-    },
-    refreshButton: {
-        backgroundColor: '#373B3F',
-        padding: 10,
-        borderRadius: 8,
-        width: '90%',
-        height: 45,
-        alignItems: 'center',
-        marginBottom: 30,
     },
     confirmButtonText: {
         fontSize: 16,
