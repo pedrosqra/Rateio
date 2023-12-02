@@ -1,21 +1,21 @@
 import {db, firebaseAuth} from '../firebase/firebase'
 import {
-  createUserWithEmailAndPassword,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  signInWithEmailAndPassword,
-  updateEmail,
-  updatePassword,
+    createUserWithEmailAndPassword,
+    deleteUser as authDeleteUser,
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    signInWithEmailAndPassword,
+    updateEmail,
+    updatePassword,
 } from 'firebase/auth'
 import {
-  collection,
-  deleteDoc as firestoreDeleteDoc,
-  doc as firestoreDoc,
-  getDoc as firestoreGetDoc,
-  getDocs,
-  query,
-  setDoc as firestoreSetDoc,
-  where,
+    collection,
+    doc as firestoreDoc,
+    getDoc as firestoreGetDoc,
+    getDocs,
+    query,
+    setDoc as firestoreSetDoc,
+    where,
 } from 'firebase/firestore'
 
 const usersCollection = collection(db, 'users')
@@ -26,12 +26,13 @@ function userDocument(userId) {
 
 const deleteUser = async (userId) => {
     try {
-        await firestoreDeleteDoc(userDocument(userId))
-        console.log('User deleted successfully')
+        const user = await firebaseAuth.currentUser;
+        await authDeleteUser(user);
+        console.log('User deleted from authentication successfully');
     } catch (error) {
-        console.error('Error deleting user:', error)
+        console.error('Error deleting user from authentication:', error);
     }
-}
+};
 
 const readUser = async (userId) => {
     try {
@@ -167,7 +168,9 @@ const getUserData = async (userId) => {
         const userSnapshot = await firestoreGetDoc(userDocument(userId))
         if (userSnapshot.exists()) {
             const userData = userSnapshot.data()
+            // @ts-ignore
             const groupIds = userData.groups || []
+            // @ts-ignore
             const userDebts = userData.debts || []
             return {
                 userDetails: userData,
@@ -219,6 +222,7 @@ const updateUserEmail = async (userId, newEmail) => {
     try {
         const user = firebaseAuth.currentUser
 
+        // @ts-ignore
         await updateEmail(user, newEmail)
 
         const userDoc = userDocument(userId)
@@ -234,9 +238,12 @@ const updateUserEmail = async (userId, newEmail) => {
 const updateUserPassword = async (oldPassword, newPassword) => {
     try {
         const user = firebaseAuth.currentUser
+        // @ts-ignore
         const credential = EmailAuthProvider.credential(user.email, oldPassword)
 
+        // @ts-ignore
         await reauthenticateWithCredential(user, credential)
+        // @ts-ignore
         await updatePassword(user, newPassword)
 
         console.log('Senha atualizada com sucesso')
