@@ -116,8 +116,10 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
     },
     innerGroup: {
+        width: 200,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'flex-end'
     },
     textBold: {
         fontSize: 18,
@@ -127,7 +129,6 @@ export const styles = StyleSheet.create({
     text: {
         fontSize: 16,
         color: "#333",
-        marginRight: 5
     },
     copy: {
         margin: 10,
@@ -147,7 +148,7 @@ export const styles = StyleSheet.create({
     },
     participantStyle: {
         flexDirection: "row",
-        justifyContent: 'flex-start',
+        justifyContent: 'space-around',
         alignItems: 'center'
     },
     participantImage: {
@@ -157,6 +158,7 @@ export const styles = StyleSheet.create({
         borderRadius: 30
     },
     participantName: {
+        width: 100,
         fontSize: 14,
         color: "#333",
         marginLeft: 15

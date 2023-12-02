@@ -1,8 +1,9 @@
 import React, {useState} from 'react'
 import {AntDesign} from '@expo/vector-icons'
-import {Alert, Image, Pressable, StyleSheet, Text, View} from 'react-native'
+import {Alert, Image, Pressable, Text, View} from 'react-native'
 import {useFocusEffect, useNavigation} from '@react-navigation/native'
 import {deleteUser, readUser, signOut,} from '../../../backend/user-config/user-service'
+import styles from './ProfileScreenStyles'
 
 const Profile = ({route}) => {
     const [name, setname] = useState('')
@@ -90,7 +91,7 @@ const Profile = ({route}) => {
                         await deleteUser(userId)
                         console.log('Conta deletada com sucesso')
                         alert('Conta deletada com sucesso.')
-                        navigation.navigate('Login') // Navegue para a tela de login após deletar a conta
+                        navigation.navigate('Login')
                     } catch (error) {
                         console.error('Erro ao deletar a conta', error)
                     }
@@ -129,16 +130,19 @@ const Profile = ({route}) => {
             </Pressable>
             <Pressable style={styles.name} onPress={onPressChangeName}>
                 <Text style={styles.textBold}>Nome</Text>
-                <Text>
-                    {name} <AntDesign name="right" size={12}/>
+                <Text style={styles.infoText} ellipsizeMode={"tail"}
+                      numberOfLines={1}>
+                    {name}
                 </Text>
+                <AntDesign name="right" size={12}/>
             </Pressable>
             <Pressable style={styles.changeEmail} onPress={onPressChangeEmail}>
                 <Text style={styles.textBold}>Alterar E-mail</Text>
-                <Text>
-                    {formatEmailForDisplay(userEmail)}
-                    <AntDesign name="right" size={12}/>
+                <Text style={styles.infoText} ellipsizeMode={"tail"}
+                      numberOfLines={1}>
+                    {"formatEmailForDisplay(userEmail)@gmail.com"}
                 </Text>
+                <AntDesign name="right" size={12}/>
             </Pressable>
             <Pressable style={styles.changePassword} onPress={onPressChangePassword}>
                 <Text style={[styles.textBold]}>Alterar Senha</Text>
@@ -150,116 +154,5 @@ const Profile = ({route}) => {
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#373b3f',
-        flex: 1,
-        width: '100%',
-        height: 844,
-        overflow: 'hidden',
-        borderRadius: 8,
-    },
-    profileImage: {
-        alignSelf: 'center',
-        top: 83,
-        width: 100,
-        height: 100,
-        position: 'absolute',
-        borderRadius: 50,
-        borderWidth: 2,
-        borderColor: '#1CC29F',
-    },
-    expenseHistory: {
-        top: 210,
-        padding: 16,
-        justifyContent: 'space-between',
-        right: '6.41%',
-        width: '87.69%',
-        borderRadius: 8,
-        alignItems: 'center',
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        left: '5.9%',
-        position: 'absolute',
-    },
-    name: {
-        top: 285,
-        borderRadius: 8,
-        padding: 16,
-        justifyContent: 'space-between',
-        right: '6.41%',
-        width: '87.69%',
-        alignItems: 'center',
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        left: '5.9%',
-        position: 'absolute',
-    },
-    arrow: {
-        position: 'absolute',
-        left: 30,
-        top: 50,
-    },
-    logoutContainer: {
-        position: 'absolute',
-        right: 30,
-        top: 50,
-        alignItems: 'center',
-    },
-    logoutText: {
-        color: 'white',
-    },
-    button: {
-        width: '87.44%',
-        top: 489,
-        right: '6.67%',
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        left: '5.9%',
-        position: 'absolute',
-        borderRadius: 8,
-    },
-    buttonText: {
-        fontSize: 16,
-        color: '#d73018',
-        fontWeight: 'bold',
-    },
-    textBold: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    changeEmail: {
-        top: 360,
-        borderTopRightRadius: 8,
-        borderTopLeftRadius: 8,
-        padding: 16,
-        justifyContent: 'space-between',
-        right: '6.41%',
-        width: '87.69%',
-        alignItems: 'center',
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        left: '5.9%',
-        position: 'absolute',
-    },
-    changePassword: {
-        top: 414,
-        borderBottomLeftRadius: 8,
-        borderBottomRightRadius: 8,
-        padding: 16,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexDirection: 'row',
-        backgroundColor: '#fff',
-        left: '5.9%',
-        right: '6.41%',
-        width: '87.69%',
-        position: 'absolute',
-    },
-})
 
-export default Profile
+export default Profile;
