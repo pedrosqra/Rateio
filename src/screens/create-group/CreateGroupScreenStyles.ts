@@ -50,11 +50,11 @@ export const styles = StyleSheet.create({
     },
     createButton: {
         backgroundColor: '#1CC29F', // Cor de fundo verde
-        paddingVertical: 10,
+        paddingVertical: 2,
         borderRadius: 5,
         alignItems: 'center',
         justifyContent: 'center',
         height: 54,
-        marginTop: 100,
+        marginTop: 30,
     },
 });

@@ -170,6 +170,8 @@ const HomeScreen = ({route}: Props) => {
                                 </View>
                                 <View style={styles.groupInfo}>
                                     <Text style={styles.groupName}>{group.name}</Text>
+                                    
+
                                     {userDebts && (
                                         <Text style={styles.groupDescription}>
                                             Sua parte: R${userDebts.get(group.groupId)}

@@ -52,6 +52,7 @@ const joinAGroupWithCode = async (groupInvite: number, userEmail: string) => {
 // Create a group with a shared debt and distribute it
 const createGroupWithSharedDebt = async (
     groupName: string,
+    groupDescription: string,
     adminId: string,
     adminPix: string,
     sharedDebtAmount: number,
@@ -63,19 +64,22 @@ const createGroupWithSharedDebt = async (
         const newGroupId = generateGroupId();
         const currentDate = new Date();
         const groupInvite = await generateUniqueGroupInvite();
+        
 
         const groupData = {
             groupId: newGroupId,
             adminId,
             adminPix,
             debtAmount: sharedDebtAmount,
-            debtDescription: "Shared Debt",
+            debtDescription: groupDescription,
             debtFinalDate: currentDate,
             dateCreated: currentDate,
             name: groupName,
             members: [adminId, ...members], // Include admin in members
             groupIdInvite: groupInvite,
         };
+
+        console.log("sharedDebtAmount", sharedDebtAmount);
 
         await firestoreSetDoc(groupDocument(newGroupId), groupData);
 

@@ -25,6 +25,7 @@ function CreateGroupScreen({route}) {
     const navigation = useNavigation();
 
     const [groupName, setGroupName] = useState('');
+    const [groupDescription, setGroupDescription] = useState('');
     const [pix, setPix] = useState('');
     const [total, setTotal] = useState('');
     const [date, setDate] = useState('');
@@ -43,8 +44,10 @@ function CreateGroupScreen({route}) {
     const createGroupThenBackHome = async () => {
         // Set creatingGroup to true to show the ActivityIndicator
         setCreatingGroup(true);
-
-        const groupId = await createGroupWithSharedDebt(groupName, adminUserId, pix, total, 'equals', participants);
+        console.log(total);
+        const totalValue = Number(total.replace('R$', '').replace(',', '.'));
+        console.log(totalValue);
+        const groupId = await createGroupWithSharedDebt(groupName, groupDescription, adminUserId, pix, totalValue, 'equals', participants);
 
         if (groupId) {
             // Group was created, scheduling notification
@@ -120,7 +123,7 @@ function CreateGroupScreen({route}) {
                 }}
                 value={total}
                 onChangeText={(formatted, raw) => {
-                    setTotal(raw);
+                    setTotal(formatted);
                 }}
                 keyboardType="numeric"
             />
@@ -130,6 +133,14 @@ function CreateGroupScreen({route}) {
                 value={date}
                 setValue={(date) => setDate(date)}
                 minimumDate={getMinimumDate()}
+            />
+
+            <Text style={styles.label}>Descrição</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Descriçao do grupo"
+                value={groupDescription}
+                onChangeText={(text) => setGroupDescription(text)}
             />
 
             <TouchableOpacity style={styles.createButton} onPress={createGroupThenBackHome}>
