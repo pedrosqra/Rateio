@@ -3364,6 +3364,11 @@ dag-map@~1.0.0:
   resolved "https://registry.npmjs.org/dag-map/-/dag-map-1.0.2.tgz"
   integrity sha512-+LSAiGFwQ9dRnRdOeaj7g47ZFJcOUPukAP8J3A3fuZ1g9Y44BG+P1sgApjLXTQPOzC4+7S9Wr8kXsfpINM4jpw==
 
+date-and-time@0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/date-and-time/-/date-and-time-0.9.0.tgz#1524579e56dc07675c640b41735a7665c0659240"
+  integrity sha512-4JybB6PbR+EebpFx/KyR5Ybl+TcdXMLIJkyYsCx3P4M4CWGMuDyFF19yh6TyasMAIF5lrsgIxiSHBXh2FFc7Fg==
+
 dayjs@^1.8.15:
   version "1.11.9"
   resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.9.tgz"
@@ -6163,6 +6168,14 @@ react-native-gesture-handler@^2.12.1:
     lodash "^4.17.21"
     prop-types "^15.7.2"
 
+react-native-masked-text@^1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/react-native-masked-text/-/react-native-masked-text-1.13.0.tgz#533fde8c45ccbaa1d6b0df30bf19b84b4ace3de3"
+  integrity sha512-iMku5Ky6DP4fTRosjsYNJOhH8yoBQCzRALBdv1wVDKmCBQhhVE8RHr5EW4SNUjkYTZL473sDdEKl4NI948q9FQ==
+  dependencies:
+    date-and-time "0.9.0"
+    tinymask "1.0.2"
+
 react-native-modal-datetime-picker@^17.1.0:
   version "17.1.0"
   resolved "https://registry.yarnpkg.com/react-native-modal-datetime-picker/-/react-native-modal-datetime-picker-17.1.0.tgz#74291bf92b830be285752f437841f52885c90e0b"
@@ -6972,6 +6985,11 @@ through@2:
   version "2.3.8"
   resolved "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
+
+tinymask@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/tinymask/-/tinymask-1.0.2.tgz#df3775a94087b0d3d056c256e8923c01b7ec0941"
+  integrity sha512-2FjNINAMq0s3e94ns2PuElOQZOt9QVgnrv0JZ8yNblwecyQDhVsSre6Rs+WJj/IHEcgdfYbDMP7zvECTfV/Xnw==
 
 tmp@^0.0.33:
   version "0.0.33"

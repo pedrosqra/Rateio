@@ -12,8 +12,8 @@ const ExpenseItem = ({date, groupName, amountPaid, description, datePaid}) => {
             <Text style={styles.groupNameText}>{groupName}</Text>
             <Text style={styles.description}>{description}</Text>
             <View style={styles.amountContainer}>
-                <Text style={styles.amountPaidText}>
-                    Você pagou: {amountPaid.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}
+                <Text numberOfLines={1} style={styles.amountPaidText}>
+                    Você pagou: {amountPaid.toFixed(2).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}
                 </Text>
                 <Text style={styles.dateText}>Data: {formattedDate}</Text>
             </View>

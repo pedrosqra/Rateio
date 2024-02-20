@@ -140,7 +140,7 @@ const Profile = ({route}) => {
                 <Text style={styles.textBold}>Alterar E-mail</Text>
                 <Text style={styles.infoText} ellipsizeMode={"tail"}
                       numberOfLines={1}>
-                    {"formatEmailForDisplay(userEmail)@gmail.com"}
+                    {userEmail}
                 </Text>
                 <AntDesign name="right" size={12}/>
             </Pressable>
