@@ -1,6 +1,6 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-./backend/firebase/
+./backend/firebase/firebase.ts
 # dependencies
 node_modules/
 
