@@ -233,11 +233,11 @@ const GroupScreen = ({ navigation, route }: Props) => {
     setShowConfirmDialog(false);
   };
 
-  const handleMarkDebtPaid = async (userId: string) => {
+  const handleMarkDebtPaid = async (userId: string, shouldPay?: boolean) => {
     if (debts) {
       const userDebt = debts.get(userId);
       if (userDebt) {
-        const isPaid = !userDebt.isPaid;
+        const isPaid = shouldPay === undefined ? !userDebt.isPaid : shouldPay
 
         try {
           await setDebtAsPaid(userDebt.groupId, userDebt.debtorId);
@@ -332,7 +332,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
           });
         } else {
           setDebtProcessingForParticipant(participantId, true);
-          handleMarkDebtPaid(participantId).then(() => {
+          handleMarkDebtPaid(participantId, false).then(() => {
             setDebtProcessingForParticipant(participantId, false);
           });
         }
