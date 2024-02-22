@@ -92,8 +92,6 @@ const History = ({ route }) => {
   )
 }
 
-// ... Rest of your styles and export statement
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
