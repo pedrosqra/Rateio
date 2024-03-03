@@ -2,7 +2,7 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
-export const schedulePushNotification = async (groupName: string, trigger: number) => {
+export const schedulePushNotification = async (groupName: string, trigger: number, isRecurrent: boolean) => {
   await Notifications.scheduleNotificationAsync({
     identifier: "review",
     content: {
@@ -11,7 +11,8 @@ export const schedulePushNotification = async (groupName: string, trigger: numbe
       body: `A data limite para pagamento do grupo ${groupName} é hoje!`
     },
     trigger: {
-      seconds: trigger
+      seconds: trigger,
+      repeats: isRecurrent,
     }
   });
 };
