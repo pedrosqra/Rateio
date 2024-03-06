@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -10,11 +10,11 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-} from "react-native";
-import * as Clipboard from "expo-clipboard";
+} from 'react-native'
+import * as Clipboard from 'expo-clipboard'
 
-import { AntDesign, Feather } from "@expo/vector-icons";
-import { DocumentData } from "firebase/firestore";
+import { AntDesign, Feather } from '@expo/vector-icons'
+import { DocumentData } from 'firebase/firestore'
 
 import {
   addUserToGroup,
@@ -25,11 +25,11 @@ import {
   setDebtAsPaid,
   setDebtAsVerified,
   verifyDebit,
-} from "../../../backend/group-config/group-service";
-import { styles } from "./GroupScreenStyles";
-import { Props } from "./types";
-import { readUser } from "../../../backend/user-config/user-service";
-import Icon from "react-native-vector-icons/FontAwesome";
+} from '../../../backend/group-config/group-service'
+import { styles } from './GroupScreenStyles'
+import { Props } from './types'
+import { readUser } from '../../../backend/user-config/user-service'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 const ConfirmDialog = ({ visible, message, onConfirm, onCancel }) => {
   return (
@@ -37,19 +37,19 @@ const ConfirmDialog = ({ visible, message, onConfirm, onCancel }) => {
       <View
         style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#1CC29F",
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#1CC29F',
         }}
       >
         <View
-          style={{ backgroundColor: "white", padding: 20, borderRadius: 10 }}
+          style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
         >
           <Text>{message}</Text>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
+              flexDirection: 'row',
+              justifyContent: 'space-around',
               marginTop: 20,
             }}
           >
@@ -63,8 +63,8 @@ const ConfirmDialog = ({ visible, message, onConfirm, onCancel }) => {
         </View>
       </View>
     </Modal>
-  );
-};
+  )
+}
 
 const ConfirmRemoveUserDialog = ({ visible, message, onConfirm, onCancel }) => {
   return (
@@ -72,19 +72,19 @@ const ConfirmRemoveUserDialog = ({ visible, message, onConfirm, onCancel }) => {
       <View
         style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#1CC29F",
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#1CC29F',
         }}
       >
         <View
-          style={{ backgroundColor: "white", padding: 20, borderRadius: 10 }}
+          style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
         >
           <Text>{message}</Text>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
+              flexDirection: 'row',
+              justifyContent: 'space-around',
               marginTop: 20,
             }}
           >
@@ -98,247 +98,247 @@ const ConfirmRemoveUserDialog = ({ visible, message, onConfirm, onCancel }) => {
         </View>
       </View>
     </Modal>
-  );
-};
+  )
+}
 
 const GroupScreen = ({ navigation, route }: Props) => {
-  const groupId = route.params.groupId;
-  const userAdminId = route.params.uid;
+  const groupId = route.params.groupId
+  const userAdminId = route.params.uid
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [valorMonetario, setValorMonetario] = useState(0);
-  const [simboloAtivo, setSimboloAtivo] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [valorMonetario, setValorMonetario] = useState(0)
+  const [simboloAtivo, setSimboloAtivo] = useState(false)
   const [groupData, setGroupData] = useState<DocumentData | null>({
     debtFinalDate: null,
-  });
-  const [participantNames, setParticipantNames] = useState<string[]>([]);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [debts, setDebts] = useState<Map<string, DocumentData>>(new Map());
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [confirmDialogMessage, setConfirmDialogMessage] = useState("");
-  const [showRemoveUserDialog, setShowRemoveUserDialog] = useState(false);
-  const [debtProcessingMap, setDebtProcessingMap] = useState(new Map());
-  const [showActivityIndicator, setShowActivityIndicator] = useState(false);
-  const [userIdToRemove, setUserIdToRemove] = useState("");
+  })
+  const [participantNames, setParticipantNames] = useState<string[]>([])
+  const [isModalVisible, setModalVisible] = useState(false)
+  const [userEmail, setUserEmail] = useState('')
+  const [debts, setDebts] = useState<Map<string, DocumentData>>(new Map())
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('')
+  const [showRemoveUserDialog, setShowRemoveUserDialog] = useState(false)
+  const [debtProcessingMap, setDebtProcessingMap] = useState(new Map())
+  const [showActivityIndicator, setShowActivityIndicator] = useState(false)
+  const [userIdToRemove, setUserIdToRemove] = useState('')
 
   useEffect(() => {
     const fetchDebts = async () => {
       try {
-        const debtData = await getGroupDebts(groupId);
+        const debtData = await getGroupDebts(groupId)
 
-        const debtMap = new Map<string, DocumentData>();
+        const debtMap = new Map<string, DocumentData>()
 
         debtData.forEach((debt) => {
-          debtMap.set(debt.debtorId, debt);
-        });
+          debtMap.set(debt.debtorId, debt)
+        })
 
-        setDebts(debtMap);
+        setDebts(debtMap)
       } catch (error) {
-        console.error("Error fetching group debts:", error);
+        console.error('Error fetching group debts:', error)
       }
-    };
+    }
 
-    fetchDebts();
+    fetchDebts()
 
     const fetchData = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
 
       try {
-        const data = await getGroupById(groupId);
-        setGroupData(data || { debtFinalDate: null });
+        const data = await getGroupById(groupId)
+        setGroupData(data || { debtFinalDate: null })
 
         const names = await Promise.all(
           (data?.members || []).map(async (participantId: string) => {
-            const userData = await readUser(participantId);
-            return userData?.name || "Unknown";
+            const userData = await readUser(participantId)
+            return userData?.name || 'Unknown'
           })
-        );
+        )
 
-        setParticipantNames(names);
+        setParticipantNames(names)
       } catch (error) {
-        console.error("Error reading the group:", error);
-        setError(true);
+        console.error('Error reading the group:', error)
+        setError(true)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchData();
+    fetchData()
 
-    console.log("leitura GRUPO");
-  }, [groupId]);
+    console.log('leitura GRUPO')
+  }, [groupId])
 
   const updateGroupData = async () => {
     try {
-      const data = await getGroupById(groupId);
-      setGroupData(data || { debtFinalDate: null });
+      const data = await getGroupById(groupId)
+      setGroupData(data || { debtFinalDate: null })
 
       const names = await Promise.all(
         (data?.members || []).map(async (participantId: string) => {
-          const userData = await readUser(participantId);
-          return userData?.name || "Unknown";
+          const userData = await readUser(participantId)
+          return userData?.name || 'Unknown'
         })
-      );
+      )
 
-      setParticipantNames(names);
+      setParticipantNames(names)
     } catch (error) {
-      console.error("Error reading the group:", error);
-      setError(true);
+      console.error('Error reading the group:', error)
+      setError(true)
     }
-  };
+  }
 
   const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+    setModalVisible(!isModalVisible)
+  }
 
   const setDebtProcessingForParticipant = (participantId, isProcessing) => {
     setDebtProcessingMap((prevState) => {
-      const newState = new Map(prevState);
-      newState.set(participantId, isProcessing);
-      return newState;
-    });
-  };
+      const newState = new Map(prevState)
+      newState.set(participantId, isProcessing)
+      return newState
+    })
+  }
 
   const handleAddUserToGroup = () => {
-    setShowActivityIndicator(true);
+    setShowActivityIndicator(true)
     addUserToGroup(groupId, userEmail)
       .then(() => {
-        console.log("User was added to the group.");
-        updateGroupData();
-        setShowActivityIndicator(false);
+        console.log('User was added to the group.')
+        updateGroupData()
+        setShowActivityIndicator(false)
       })
       .catch((error) => {
-        console.error("Error adding user to the group:", error);
-      });
+        console.error('Error adding user to the group:', error)
+      })
 
-    setModalVisible(false);
-  };
+    setModalVisible(false)
+  }
 
   const handleDeleteGroup = () => {
-    setConfirmDialogMessage("Tem certeza que quer apagar o grupo?");
-    setShowConfirmDialog(true);
-  };
+    setConfirmDialogMessage('Tem certeza que quer apagar o grupo?')
+    setShowConfirmDialog(true)
+  }
 
   const handleConfirmDeleteGroup = () => {
     deleteGroup(groupId).then(() => {
-      console.log("Group deleted");
-      setShowConfirmDialog(false);
-      navigation.goBack();
-    });
-  };
+      console.log('Group deleted')
+      setShowConfirmDialog(false)
+      navigation.goBack()
+    })
+  }
 
   const handleCancelDeleteGroup = () => {
-    setShowConfirmDialog(false);
-  };
+    setShowConfirmDialog(false)
+  }
 
   const handleMarkDebtPaid = async (userId: string, shouldPay?: boolean) => {
     if (debts) {
-      const userDebt = debts.get(userId);
+      const userDebt = debts.get(userId)
       if (userDebt) {
         const isPaid = shouldPay === undefined ? !userDebt.isPaid : shouldPay
 
         try {
-          await setDebtAsPaid(userDebt.groupId, userDebt.debtorId);
-          const updatedDebt = { ...userDebt, isPaid, verified: isPaid };
-          debts.set(userId, updatedDebt);
-          setDebts(new Map(debts));
+          await setDebtAsPaid(userDebt.groupId, userDebt.debtorId)
+          const updatedDebt = { ...userDebt, isPaid, verified: isPaid }
+          debts.set(userId, updatedDebt)
+          setDebts(new Map(debts))
         } catch (error) {
-          console.error("Error updating debt payment:", error);
+          console.error('Error updating debt payment:', error)
         }
       }
     }
-  };
+  }
 
   const handleVerifyDebit = async (userId: string, verified: boolean) => {
     if (debts) {
-      const userDebt = debts.get(userId);
+      const userDebt = debts.get(userId)
       if (userDebt) {
         try {
-          await verifyDebit(userDebt.groupId, userDebt.debtorId, verified);
+          await verifyDebit(userDebt.groupId, userDebt.debtorId, verified)
           const updatedDebt = {
             ...userDebt,
             isPaid: verified,
             verified: verified,
-          };
-          debts.set(userId, updatedDebt);
-          setDebts(new Map(debts));
+          }
+          debts.set(userId, updatedDebt)
+          setDebts(new Map(debts))
         } catch (error) {
-          console.error("Error updating debt payment:", error);
+          console.error('Error updating debt payment:', error)
         }
       }
     }
-  };
+  }
 
   const handleMarkDebtVerified = async (userId: string) => {
     if (debts) {
-      const userDebt = debts.get(userId);
+      const userDebt = debts.get(userId)
       if (userDebt) {
         try {
-          await setDebtAsVerified(userDebt.groupId, userDebt.debtorId);
-          const updatedDebt = { ...userDebt, verified: true };
-          debts.set(userId, updatedDebt);
-          setDebts(new Map(debts));
+          await setDebtAsVerified(userDebt.groupId, userDebt.debtorId)
+          const updatedDebt = { ...userDebt, verified: true }
+          debts.set(userId, updatedDebt)
+          setDebts(new Map(debts))
         } catch (error) {
-          console.error("Error verifying debt payment:", error);
+          console.error('Error verifying debt payment:', error)
         }
       }
     }
-  };
+  }
 
   const handleRemoveMember = async (userId: string) => {
-    setUserIdToRemove(userId);
-    setShowRemoveUserDialog(true);
-  };
+    setUserIdToRemove(userId)
+    setShowRemoveUserDialog(true)
+  }
 
   const copyToClipboard = async (text) => {
-    await Clipboard.setStringAsync(text);
-  };
+    await Clipboard.setStringAsync(text)
+  }
 
   const handleConfirmRemoveUser = async () => {
     if (groupData.adminId === userAdminId) {
-      setShowActivityIndicator(true);
+      setShowActivityIndicator(true)
       try {
-        await deleteUserFromGroup(groupId, userIdToRemove);
-        updateGroupData();
+        await deleteUserFromGroup(groupId, userIdToRemove)
+        updateGroupData()
       } catch (error) {
-        console.error("Error removing user:", error);
+        console.error('Error removing user:', error)
       }
-      setShowActivityIndicator(false);
+      setShowActivityIndicator(false)
     }
-    setShowRemoveUserDialog(false);
-    navigation.goBack();
-  };
+    setShowRemoveUserDialog(false)
+    navigation.goBack()
+  }
 
   const handleCancelRemoveUser = () => {
-    setShowRemoveUserDialog(false);
-  };
+    setShowRemoveUserDialog(false)
+  }
 
   const handlePayPress = (participantId: string, isPaid: boolean) => {
     if (groupData?.adminId === userAdminId) {
       // Admin pressing
-      setDebtProcessingForParticipant(participantId, true);
+      setDebtProcessingForParticipant(participantId, true)
       handleMarkDebtPaid(participantId).then(() => {
-        setDebtProcessingForParticipant(participantId, false);
-      });
+        setDebtProcessingForParticipant(participantId, false)
+      })
     } else {
       // Default user pressing
       if (participantId === userAdminId) {
         if (!isPaid) {
-          setDebtProcessingForParticipant(participantId, true);
+          setDebtProcessingForParticipant(participantId, true)
           handleMarkDebtVerified(participantId).then(() => {
-            setDebtProcessingForParticipant(participantId, false);
-          });
+            setDebtProcessingForParticipant(participantId, false)
+          })
         } else {
-          setDebtProcessingForParticipant(participantId, true);
+          setDebtProcessingForParticipant(participantId, true)
           handleMarkDebtPaid(participantId, false).then(() => {
-            setDebtProcessingForParticipant(participantId, false);
-          });
+            setDebtProcessingForParticipant(participantId, false)
+          })
         }
       }
     }
-  };
+  }
 
   return (
     <ScrollView style={styles.containerScroll}>
@@ -351,20 +351,20 @@ const GroupScreen = ({ navigation, route }: Props) => {
           style={styles.arrow}
         />
         {isLoading ? (
-          <ActivityIndicator size={"large"} color={"#fff"} />
+          <ActivityIndicator size={'large'} color={'#fff'} />
         ) : error ? (
           <Text>Error loading group data</Text>
         ) : (
           <>
             <Image
               source={{
-                uri: "https://picsum.photos/500/510",
+                uri: 'https://picsum.photos/500/510',
               }}
               style={styles.image}
             />
             <View style={styles.groupInfo}>
               <Pressable
-                onPress={() => console.log("GROUP PRESS")}
+                onPress={() => console.log('GROUP PRESS')}
                 style={styles.inline}
               >
                 <Text style={styles.textBold}>Nome do grupo</Text>
@@ -372,7 +372,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
                   <Text
                     style={styles.text}
                     numberOfLines={2}
-                    ellipsizeMode={"tail"}
+                    ellipsizeMode={'tail'}
                   >
                     {groupData?.name}
                   </Text>
@@ -388,7 +388,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
                     <Text
                       style={styles.text}
                       numberOfLines={1}
-                      ellipsizeMode={"tail"}
+                      ellipsizeMode={'tail'}
                     >
                       {groupData?.adminPix}
                     </Text>
@@ -401,7 +401,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
                   <Text
                     style={styles.text}
                     numberOfLines={1}
-                    ellipsizeMode={"tail"}
+                    ellipsizeMode={'tail'}
                   >
                     R$: {groupData?.debtAmount}
                   </Text>
@@ -412,7 +412,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
                 <TouchableOpacity
                   onPress={() =>
                     copyToClipboard(
-                      "Bora dividir? Participe do meu rateio: " +
+                      'Bora dividir? Participe do meu rateio: ' +
                         groupData?.groupIdInvite
                     )
                   }
@@ -426,7 +426,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
             </View>
             <View style={styles.groupInfo}>
               <Pressable
-                onPress={() => console.log("PARTICIPANTS PRESS")}
+                onPress={() => console.log('PARTICIPANTS PRESS')}
                 style={styles.inline}
               >
                 <Text style={styles.textBold}>Participantes</Text>
@@ -439,33 +439,33 @@ const GroupScreen = ({ navigation, route }: Props) => {
                   <ScrollView style={styles.scrollView}>
                     {groupData.members.map(
                       (participantId: string, index: number) => {
-                        const isAdmin = groupData.adminId === userAdminId;
-                        const isPaid = debts.get(participantId)?.isPaid;
-                        const isVerified = debts.get(participantId)?.verified;
+                        const isAdmin = groupData.adminId === userAdminId
+                        const isPaid = debts.get(participantId)?.isPaid
+                        const isVerified = debts.get(participantId)?.verified
 
                         const showVerifyButton =
-                          isAdmin && !isPaid && isVerified;
+                          isAdmin && !isPaid && isVerified
 
                         const onConfirm = () => {
-                          handleVerifyDebit(participantId, true);
-                        };
+                          handleVerifyDebit(participantId, true)
+                        }
 
                         const onCancel = () => {
-                          handleVerifyDebit(participantId, false);
-                        };
+                          handleVerifyDebit(participantId, false)
+                        }
 
                         return (
                           <View key={index} style={styles.participantInfo}>
                             <View style={styles.participantStyle}>
                               <Image
                                 source={{
-                                  uri: "https://picsum.photos/200/310",
+                                  uri: 'https://picsum.photos/200/310',
                                 }}
                                 style={styles.participantImage}
                               />
                               <Text
                                 style={styles.participantName}
-                                ellipsizeMode={"tail"}
+                                ellipsizeMode={'tail'}
                                 numberOfLines={1}
                               >
                                 {participantNames[index]}
@@ -506,10 +506,10 @@ const GroupScreen = ({ navigation, route }: Props) => {
                                   ) : (
                                     <Text style={styles.markDebtButtonText}>
                                       {isPaid
-                                        ? "Pago"
+                                        ? 'Pago'
                                         : isVerified
-                                        ? "Pendente"
-                                        : "Não Pago"}
+                                        ? 'Em análise'
+                                        : 'Não Pago'}
                                     </Text>
                                   )}
                                 </TouchableOpacity>
@@ -526,7 +526,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
                               )}
                             </View>
                           </View>
-                        );
+                        )
                       }
                     )}
                   </ScrollView>
@@ -600,7 +600,7 @@ const GroupScreen = ({ navigation, route }: Props) => {
         )}
       </View>
     </ScrollView>
-  );
-};
+  )
+}
 
-export default GroupScreen;
+export default GroupScreen
